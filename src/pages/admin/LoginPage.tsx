@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { useNavigate } from 'react-router'
 import { useAuthStore } from '@/store/useAuthStore'
-import imagotipo from '@/assets/imagotipo.png'
+import logo from '@/assets/viva-casa-logo.png'
 
 export function LoginPage() {
   const [email, setEmail] = useState('')
@@ -37,13 +37,7 @@ export function LoginPage() {
       style={{ background: 'linear-gradient(160deg, #1e1b4b 0%, #3730a3 40%, #4f46e5 70%, #818cf8 100%)' }}
     >
       <div className="w-full max-w-sm flex flex-col gap-6">
-        <div className="flex flex-col items-center gap-2">
-          <img src={imagotipo} alt="Viva Casa" className="w-16 object-contain" />
-          <div className="text-center">
-            <p className="text-white font-bold text-lg leading-tight">Viva Casa</p>
-            <p className="text-white/70 text-sm">Leads Admin</p>
-          </div>
-        </div>
+        <img src={logo} alt="Viva Casa" className="w-48 object-contain mx-auto" />
         <form onSubmit={handleLogin} className="flex flex-col gap-3">
           <input
             type="email"
