@@ -77,7 +77,6 @@ const INFONAVIT_TYPES: TipoCredito[] = [
   'infonavit_tradicional', 'infonavit_total', 'cofinavit', 'unamos_creditos', 'segundo_credito'
 ]
 
-const PARTICIPANTES_TYPES: TipoCredito[] = ['infonavit_total', 'cofinavit', 'unamos_creditos']
 
 function buildSteps(data: FormData): StepId[] {
   const steps: StepId[] = [
