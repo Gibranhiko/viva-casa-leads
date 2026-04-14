@@ -3,11 +3,11 @@ import { useFormStore } from '@/store/useFormStore'
 import { StepLayout } from '@/components/form/StepLayout'
 
 export function StepDomicilio() {
-  const { domicilioMunicipio, domicilioFraccionamiento, domicilioCalle, setField, nextStep } = useFormStore()
+  const { domicilioMunicipio, domicilioFraccionamiento, domicilioCalle, domicilioCP, setField, nextStep } = useFormStore()
   const [error, setError] = useState('')
 
   const handleNext = () => {
-    if (!domicilioMunicipio.trim() || !domicilioFraccionamiento.trim() || !domicilioCalle.trim()) {
+    if (!domicilioMunicipio.trim() || !domicilioFraccionamiento.trim() || !domicilioCalle.trim() || !domicilioCP.trim()) {
       setError('Por favor completa todos los campos')
       return
     }
@@ -39,8 +39,17 @@ export function StepDomicilio() {
           type="text"
           value={domicilioCalle}
           onChange={(e) => setField('domicilioCalle', e.target.value)}
+          placeholder="Calle y número"
+          className={inputClass}
+        />
+        <input
+          type="text"
+          value={domicilioCP}
+          onChange={(e) => setField('domicilioCP', e.target.value.replace(/\D/g, '').slice(0, 5))}
           onKeyDown={(e) => e.key === 'Enter' && handleNext()}
-          placeholder="Calle"
+          placeholder="Código postal"
+          maxLength={5}
+          inputMode="numeric"
           className={inputClass}
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}

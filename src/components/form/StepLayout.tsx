@@ -22,13 +22,11 @@ export function StepLayout({
   const nextStep = useFormStore((s) => s.nextStep)
 
   return (
-    <div className="flex-1 flex flex-col px-6 pt-8 pb-6 max-w-lg mx-auto w-full">
-      <div className="flex-1">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
-        {subtitle && <p className="text-gray-500 mb-6">{subtitle}</p>}
-        {!subtitle && <div className="mb-6" />}
-        {children}
-      </div>
+    <div className="px-6 pt-8 pb-6 max-w-lg mx-auto w-full">
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
+      {subtitle && <p className="text-gray-500 mb-6">{subtitle}</p>}
+      {!subtitle && <div className="mb-6" />}
+      {children}
 
       {!hideNext && (
         <button

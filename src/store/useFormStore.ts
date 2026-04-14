@@ -32,6 +32,7 @@ interface FormData {
   domicilioMunicipio: string
   domicilioFraccionamiento: string
   domicilioCalle: string
+  domicilioCP: string
 
   // Laboral
   situacionLaboral: SituacionLaboral | null
@@ -93,9 +94,6 @@ function buildSteps(data: FormData): StepId[] {
 
   if (data.tipoCredito && INFONAVIT_TYPES.includes(data.tipoCredito)) {
     steps.push('nss', 'precalificacion')
-    if (PARTICIPANTES_TYPES.includes(data.tipoCredito)) {
-      steps.push('participantes')
-    }
   } else if (data.tipoCredito === 'banco') {
     steps.push('banco', 'enganche')
   } else if (data.tipoCredito === 'recursos_propios') {
@@ -124,7 +122,7 @@ function getInitialState(): FormData {
     leadId: generateLeadId(),
     nombre: '', whatsapp: '', email: null,
     edad: null, estadoCivil: null, dependientes: null,
-    domicilioMunicipio: '', domicilioFraccionamiento: '', domicilioCalle: '',
+    domicilioMunicipio: '', domicilioFraccionamiento: '', domicilioCalle: '', domicilioCP: '',
     situacionLaboral: null, empresa: null, ingresoMensual: null,
     tipoCredito: null,
     nss: null, nssImageUrl: null, precalificacion: null, participantes: null,

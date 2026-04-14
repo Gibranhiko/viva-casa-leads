@@ -24,6 +24,7 @@ export async function submitLead(store: FormStore) {
       municipio: store.domicilioMunicipio,
       fraccionamiento: store.domicilioFraccionamiento,
       calle: store.domicilioCalle,
+      cp: store.domicilioCP,
     },
 
     situacionLaboral: store.situacionLaboral,

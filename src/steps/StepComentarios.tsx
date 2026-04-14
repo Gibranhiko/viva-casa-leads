@@ -26,11 +26,6 @@ export function StepComentarios() {
     }
   }
 
-  const handleSkip = () => {
-    setField('comentarios', null)
-    handleSubmit()
-  }
-
   return (
     <StepLayout
       title="¿Algo más que quieras decirnos?"
@@ -53,13 +48,6 @@ export function StepComentarios() {
           </span>
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          onClick={handleSkip}
-          disabled={loading}
-          className="text-gray-400 text-sm underline underline-offset-2"
-        >
-          No, ya está todo
-        </button>
       </div>
     </StepLayout>
   )
