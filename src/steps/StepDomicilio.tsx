@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useFormStore } from '@/store/useFormStore'
 import { StepLayout } from '@/components/form/StepLayout'
+import { MUNICIPIOS_MTY } from '@/lib/municipios'
 
 export function StepDomicilio() {
   const { domicilioMunicipio, domicilioFraccionamiento, domicilioCalle, domicilioCP, setField, nextStep } = useFormStore()
   const [error, setError] = useState('')
 
   const handleNext = () => {
-    if (!domicilioMunicipio.trim() || !domicilioFraccionamiento.trim() || !domicilioCalle.trim() || !domicilioCP.trim()) {
+    if (!domicilioMunicipio || !domicilioFraccionamiento.trim() || !domicilioCalle.trim() || !domicilioCP.trim()) {
       setError('Por favor completa todos los campos')
       return
     }
@@ -15,19 +16,22 @@ export function StepDomicilio() {
     nextStep()
   }
 
-  const inputClass = "w-full border-2 border-gray-200 focus:border-orange-500 rounded-xl px-4 py-3.5 text-base outline-none transition-colors"
+  const inputClass = "w-full border-2 border-gray-200 focus:border-orange-500 rounded-xl px-4 py-3.5 text-base outline-none transition-colors bg-white"
 
   return (
     <StepLayout title="¿Dónde vives actualmente?" onNext={handleNext}>
       <div className="flex flex-col gap-3">
-        <input
-          type="text"
+        <select
           value={domicilioMunicipio}
           onChange={(e) => setField('domicilioMunicipio', e.target.value)}
-          placeholder="Municipio"
           autoFocus
           className={inputClass}
-        />
+        >
+          <option value="">Municipio</option>
+          {MUNICIPIOS_MTY.map((m) => (
+            <option key={m} value={m}>{m}</option>
+          ))}
+        </select>
         <input
           type="text"
           value={domicilioFraccionamiento}
