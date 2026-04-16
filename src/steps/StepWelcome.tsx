@@ -51,13 +51,14 @@ export function StepWelcome() {
             🏷️ Quiero vender casa
           </button>
 
-          <button
-            onClick={() => navigate('/admin/login')}
-            className="w-full text-white/40 text-xs py-2 transition-colors hover:text-white/60"
-          >
-            Admin Leads
-          </button>
         </motion.div>
+
+        <button
+          onClick={() => navigate('/admin/login')}
+          className="text-white/40 hover:text-white/70 text-sm transition-colors mt-4"
+        >
+          Admin Leads
+        </button>
       </motion.div>
     </div>
   )

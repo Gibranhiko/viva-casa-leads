@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from 'react'
-import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
 import { useLeads } from '@/hooks/useLeads'
 import { exportToCSV } from '@/lib/exportCsv'
 import { useNavigate } from 'react-router'
 import imagotipo from '@/assets/imagotipo.png'
+import { MUNICIPIOS_MTY, MUNICIPIO_LABELS } from '@/lib/municipios'
+import { AdminMenu } from '@/components/admin/AdminMenu'
 
 
 const STATUS_COLORS: Record<string, string> = {
@@ -32,10 +32,8 @@ const CREDITO_LABELS: Record<string, string> = {
 }
 
 const ZONA_LABELS: Record<string, string> = {
-  monterrey: 'Mty', san_pedro: 'S.Pedro', santa_catarina: 'Sta.Cat',
-  guadalupe: 'Gpe', apodaca: 'Apodaca', escobedo: 'Escobedo',
-  garcia: 'García', juarez: 'Juárez', san_nicolas: 'S.Nicolás',
-  cadereyta: 'Cadereyta', indiferente: 'Indiferente',
+  ...MUNICIPIO_LABELS,
+  indiferente: 'Indiferente',
 }
 
 export function LeadsPage() {
@@ -75,12 +73,7 @@ export function LeadsPage() {
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <img src={imagotipo} alt="Viva Casa" className="h-8 object-contain" />
-          <div>
-            <p className="text-sm font-bold text-gray-900 leading-tight">Viva Casa</p>
-            <p className="text-xs text-gray-400 leading-tight">Compradores Admin</p>
-          </div>
-          {/* Nav tabs */}
-          <div className="hidden sm:flex items-center gap-1 ml-4 bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
             <button
               className="px-3 py-1.5 text-xs font-medium rounded-md bg-white text-orange-600 shadow-sm"
             >
@@ -95,7 +88,14 @@ export function LeadsPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500 hidden sm:block">
+          <AdminMenu />
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Barra superior */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm text-gray-500">
             {leads.length} cargados · {filtered.length} mostrados
           </span>
           <button
@@ -104,16 +104,8 @@ export function LeadsPage() {
           >
             Exportar CSV
           </button>
-          <button
-            onClick={() => signOut(auth)}
-            className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            Salir
-          </button>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Filtros */}
         <div className="flex flex-col gap-3 mb-4">
           <div className="flex flex-wrap gap-2">
@@ -137,21 +129,17 @@ export function LeadsPage() {
 
           {/* Zonas multiselect chips */}
           <div className="flex flex-wrap gap-1.5">
-            {[
-              ['monterrey', 'Monterrey'], ['san_pedro', 'San Pedro'], ['santa_catarina', 'Santa Catarina'],
-              ['guadalupe', 'Guadalupe'], ['apodaca', 'Apodaca'], ['escobedo', 'Escobedo'],
-              ['garcia', 'García'], ['juarez', 'Juárez'], ['san_nicolas', 'San Nicolás'], ['cadereyta', 'Cadereyta'],
-            ].map(([v, l]) => (
+            {MUNICIPIOS_MTY.map(({ value, label }) => (
               <button
-                key={v}
-                onClick={() => toggleZona(v)}
+                key={value}
+                onClick={() => toggleZona(value)}
                 className={`px-3 py-1 rounded-full text-xs font-medium border transition-all
-                  ${filterZonas.includes(v)
+                  ${filterZonas.includes(value)
                     ? 'bg-orange-500 border-orange-500 text-white'
                     : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300'
                   }`}
               >
-                {l}
+                {label}
               </button>
             ))}
           </div>

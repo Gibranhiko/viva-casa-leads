@@ -28,8 +28,8 @@ export function StepDomicilio() {
           className={inputClass}
         >
           <option value="">Municipio</option>
-          {MUNICIPIOS_MTY.map((m) => (
-            <option key={m} value={m}>{m}</option>
+          {MUNICIPIOS_MTY.map(({ value, label }) => (
+            <option key={value} value={value}>{label}</option>
           ))}
         </select>
         <input

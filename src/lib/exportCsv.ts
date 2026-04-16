@@ -1,4 +1,5 @@
 import type { LeadRow } from '@/hooks/useLeads'
+import type { SellerLeadRow } from '@/hooks/useSellerLeads'
 
 function val(v: unknown): string {
   if (v === null || v === undefined) return ''
@@ -42,12 +43,40 @@ export function exportToCSV(leads: LeadRow[]) {
   })
 
   const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+  downloadCsv(csv, `viva-casa-compradores-${new Date().toISOString().slice(0, 10)}.csv`)
+}
+
+export function exportSellerToCSV(leads: SellerLeadRow[]) {
+  const headers = [
+    'ID', 'Fecha', 'Status', 'Nombre', 'WhatsApp', 'Email',
+    'Municipio', 'Fraccionamiento', 'Calle', 'CP',
+    'Tipo Propiedad', 'Recámaras', 'Baños', 'M2', 'Antigüedad', 'Condición',
+    'Ocupación', 'Servicios', 'Predial', 'Cuotas Condominio',
+    'Estado Civil', 'Escrituras', 'Num. Dueños', 'Dueños Disponibles',
+    'Crédito', 'Cesión INFONAVIT', 'Cancelación INFONAVIT',
+    'Red Flags', 'Precio Pedido', 'Urgencia', 'Comentarios', 'Fuente',
+  ]
+
+  const rows = leads.map((l) => [
+    l.id, val(l.createdAt), l.status, l.nombre, l.whatsapp, val(l.email),
+    val(l.municipio), val(l.fraccionamiento), val(l.calle), val(l.cp),
+    val(l.tipoPropiedad), val(l.recamaras), val(l.banos), val(l.m2Construccion), val(l.antiguedad), val(l.condicionFisica),
+    val(l.ocupacion), val(l.serviciosActivos), val(l.predialAlCorriente), val(l.cuotasCondominio),
+    val(l.estadoCivil), val(l.tieneEscrituras), val(l.numeroDuenos), val(l.duenosDisponibles),
+    val(l.situacionCredito), val(l.cesionInfonvitInteres), val(l.cancelacionInfonvitRegistrada),
+    val(l.redFlags), val(l.precioPedido), val(l.urgencia), val(l.comentarios), val(l.fuente),
+  ].map((c) => `"${String(c).replace(/"/g, '""')}"`))
+
+  const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+  downloadCsv(csv, `viva-casa-vendedores-${new Date().toISOString().slice(0, 10)}.csv`)
+}
+
+function downloadCsv(csv: string, filename: string) {
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  const date = new Date().toISOString().slice(0, 10)
   a.href = url
-  a.download = `viva-casa-leads-${date}.csv`
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
 }

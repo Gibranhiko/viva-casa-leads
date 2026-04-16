@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from 'react'
-import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
 import { useSellerLeads } from '@/hooks/useSellerLeads'
 import { useNavigate } from 'react-router'
 import imagotipo from '@/assets/imagotipo.png'
+import { exportSellerToCSV } from '@/lib/exportCsv'
+import { MUNICIPIOS_MTY, MUNICIPIO_LABELS } from '@/lib/municipios'
+import { AdminMenu } from '@/components/admin/AdminMenu'
 import type { RedFlag } from '@/types/sellerLead'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -22,30 +23,15 @@ const STATUS_LABELS: Record<string, string> = {
   descartado: 'Descartado',
 }
 
-const TIPO_LABELS: Record<string, string> = {
-  fraccionamiento: 'Fracc.',
-  colonia:         'Colonia',
-  departamento:    'Depto.',
-  terreno:         'Terreno',
+
+const CREDITO_LABELS: Record<string, string> = {
+  libre:            'Sin hipoteca',
+  infonavit_activo: 'INFONAVIT activo',
+  banco:            'Hipoteca banco',
+  infonavit_pagado: 'INFONAVIT pagado',
+  no_se:            'No sabe',
 }
 
-const URGENCIA_LABELS: Record<string, string> = {
-  urgente:   'Urgente',
-  '3_meses': '3 meses',
-  sin_prisa: 'Sin prisa',
-}
-
-const URGENCIA_COLORS: Record<string, string> = {
-  urgente:   'text-red-600 font-semibold',
-  '3_meses': 'text-yellow-600',
-  sin_prisa: 'text-gray-500',
-}
-
-const MUNICIPIOS = [
-  'Monterrey', 'San Pedro Garza García', 'San Nicolás de los Garza',
-  'Guadalupe', 'Apodaca', 'General Escobedo', 'García',
-  'Santa Catarina', 'Juárez', 'Cadereyta Jiménez',
-]
 
 function RedFlagsCell({ flags }: { flags: RedFlag[] }) {
   const cesion = flags.includes('cesion_infonavit_interes')
@@ -76,24 +62,27 @@ export function SellerLeadsPage() {
   const { leads, loading, loadingMore, hasMore, loadInitial, loadMore } = useSellerLeads()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const [filterMunicipio, setFilterMunicipio] = useState('')
-  const [filterUrgencia, setFilterUrgencia] = useState('')
+  const [filterMunicipios, setFilterMunicipios] = useState<string[]>([])
+  const [filterCredito, setFilterCredito] = useState('')
 
   useEffect(() => { loadInitial() }, [loadInitial])
 
+  const toggleMunicipio = (m: string) =>
+    setFilterMunicipios((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m])
+
   const filtered = useMemo(() => {
     let result = leads
-    if (filterMunicipio) result = result.filter((l) => l.municipio === filterMunicipio)
-    if (filterUrgencia) result = result.filter((l) => l.urgencia === filterUrgencia)
+    if (filterMunicipios.length > 0) result = result.filter((l) => filterMunicipios.includes(l.municipio))
+    if (filterCredito) result = result.filter((l) => l.situacionCredito === filterCredito)
     if (search) result = result.filter((l) => l.nombre.toLowerCase().includes(search.toLowerCase()))
     return result
-  }, [leads, filterMunicipio, filterUrgencia, search])
+  }, [leads, filterMunicipios, filterCredito, search])
 
   const resetFilters = () => {
-    setFilterMunicipio(''); setFilterUrgencia(''); setSearch('')
+    setFilterMunicipios([]); setFilterCredito(''); setSearch('')
   }
 
-  const hasFilters = filterMunicipio || filterUrgencia || search
+  const hasFilters = filterMunicipios.length > 0 || filterCredito || search
   const selectClass = "border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 bg-white"
 
   return (
@@ -102,12 +91,7 @@ export function SellerLeadsPage() {
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img src={imagotipo} alt="Viva Casa" className="h-8 object-contain" />
-          <div>
-            <p className="text-sm font-bold text-gray-900 leading-tight">Viva Casa</p>
-            <p className="text-xs text-gray-400 leading-tight">Vendedores Admin</p>
-          </div>
-          {/* Nav tabs */}
-          <div className="hidden sm:flex items-center gap-1 ml-4 bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => navigate('/admin')}
               className="px-3 py-1.5 text-xs font-medium rounded-md text-gray-500 hover:text-gray-700 transition-colors"
@@ -122,41 +106,61 @@ export function SellerLeadsPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500 hidden sm:block">
-            {leads.length} cargados · {filtered.length} mostrados
-          </span>
-          <button
-            onClick={() => signOut(auth)}
-            className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            Salir
-          </button>
+          <AdminMenu />
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Barra superior */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm text-gray-500">
+            {leads.length} cargados · {filtered.length} mostrados
+          </span>
+          <button
+            onClick={() => exportSellerToCSV(filtered)}
+            className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 rounded-lg transition-colors"
+          >
+            Exportar CSV
+          </button>
+        </div>
+
         {/* Filtros */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nombre..."
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400 min-w-44"
-          />
-          <select value={filterMunicipio} onChange={(e) => setFilterMunicipio(e.target.value)} className={selectClass}>
-            <option value="">Todos los municipios</option>
-            {MUNICIPIOS.map((m) => <option key={m} value={m}>{m}</option>)}
-          </select>
-          <select value={filterUrgencia} onChange={(e) => setFilterUrgencia(e.target.value)} className={selectClass}>
-            <option value="">Toda urgencia</option>
-            {Object.entries(URGENCIA_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-          {hasFilters && (
-            <button onClick={resetFilters} className="text-sm text-orange-500 underline px-1">
-              Limpiar
-            </button>
-          )}
+        <div className="flex flex-col gap-3 mb-4">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por nombre..."
+              className="flex-1 min-w-0 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-400"
+            />
+            <select value={filterCredito} onChange={(e) => setFilterCredito(e.target.value)} className={selectClass}>
+              <option value="">Todo crédito</option>
+              {Object.entries(CREDITO_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+            {hasFilters && (
+              <button onClick={resetFilters} className="text-sm text-orange-500 underline px-1 shrink-0">
+                Limpiar
+              </button>
+            )}
+          </div>
+
+          {/* Municipios multiselect chips */}
+          <div className="flex flex-wrap gap-1.5">
+            {MUNICIPIOS_MTY.map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => toggleMunicipio(value)}
+                className={`px-3 py-1 rounded-full text-xs font-medium border transition-all
+                  ${filterMunicipios.includes(value)
+                    ? 'bg-orange-500 border-orange-500 text-white'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300'
+                  }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Tabla */}
@@ -173,7 +177,7 @@ export function SellerLeadsPage() {
                     <th className="text-left px-4 py-3 font-medium text-gray-500">Nombre</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-500">WhatsApp</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-500">Municipio</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-500">Tipo</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-500">Crédito</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-500">Urgencia</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-500">Flags</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-500">Status</th>
@@ -189,12 +193,12 @@ export function SellerLeadsPage() {
                     >
                       <td className="px-4 py-3 font-medium text-gray-900">{lead.nombre}</td>
                       <td className="px-4 py-3 text-gray-600">{lead.whatsapp}</td>
-                      <td className="px-4 py-3 text-gray-500">{lead.municipio || '—'}</td>
-                      <td className="px-4 py-3 text-gray-500">
-                        {lead.tipoPropiedad ? (TIPO_LABELS[lead.tipoPropiedad] ?? lead.tipoPropiedad) : '—'}
+                      <td className="px-4 py-3 text-gray-500">{MUNICIPIO_LABELS[lead.municipio] ?? lead.municipio ?? '—'}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">
+                        {lead.situacionCredito ? (CREDITO_LABELS[lead.situacionCredito] ?? lead.situacionCredito) : '—'}
                       </td>
-                      <td className={`px-4 py-3 text-xs ${lead.urgencia ? URGENCIA_COLORS[lead.urgencia] ?? '' : 'text-gray-400'}`}>
-                        {lead.urgencia ? (URGENCIA_LABELS[lead.urgencia] ?? lead.urgencia) : '—'}
+                      <td className="px-4 py-3 text-gray-500 text-xs">
+                        {lead.urgencia ?? '—'}
                       </td>
                       <td className="px-4 py-3">
                         <RedFlagsCell flags={lead.redFlags} />

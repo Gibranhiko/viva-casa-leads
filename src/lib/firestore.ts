@@ -99,7 +99,9 @@ export async function submitSellerLead(store: SellerFormStore) {
     fotoPaths: store.fotoPaths,
 
     ocupacion: store.ocupacion,
-    serviciosActivos: store.serviciosActivos,
+    luzEstado: store.luzEstado,
+    aguaEstado: store.aguaEstado,
+    gasEstado: store.gasEstado,
     predialAlCorriente: store.predialAlCorriente,
 
     estadoCivil: store.estadoCivil,

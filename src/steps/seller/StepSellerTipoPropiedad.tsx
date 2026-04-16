@@ -3,10 +3,10 @@ import { StepLayout } from '@/components/form/StepLayout'
 import { StepCard } from '@/components/form/StepCard'
 
 const OPTIONS = [
-  { value: 'fraccionamiento', label: 'Casa en fraccionamiento' },
-  { value: 'colonia',         label: 'Casa en colonia' },
-  { value: 'departamento',    label: 'Departamento' },
-  { value: 'terreno',         label: 'Terreno' },
+  { value: 'fracc_privado', label: 'Casa en fracc privado', description: 'Con caseta y acceso controlado' },
+  { value: 'fracc_abierto', label: 'Casa en fracc abierto' },
+  { value: 'departamento',  label: 'Departamento' },
+  { value: 'terreno',       label: 'Terreno' },
 ]
 
 export function StepSellerTipoPropiedad() {

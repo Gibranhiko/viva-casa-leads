@@ -1,6 +1,7 @@
 import { useSellerFormStore } from '@/store/useSellerFormStore'
 import { ProgressBar } from '@/components/form/ProgressBar'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useNavigate } from 'react-router'
 import type { SellerStepId } from '@/store/useSellerFormStore'
 
 // Steps — Bloque A
@@ -68,19 +69,25 @@ const STEP_COMPONENTS: Record<SellerStepId, React.ComponentType> = {
 
 export function SellerFormShell() {
   const { currentStepIndex, getSteps, currentStepId, prevStep } = useSellerFormStore()
+  const navigate = useNavigate()
 
   const steps = getSteps()
   const stepId = currentStepId()
   const StepComponent = STEP_COMPONENTS[stepId]
 
-  const showNav = currentStepIndex > 0
+  const handleBack = () => {
+    if (currentStepIndex === 0) {
+      navigate('/')
+    } else {
+      prevStep()
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {showNav && (
-        <div className="px-4 pt-4 pb-2 flex items-center gap-3">
+      <div className="px-4 pt-4 pb-2 flex items-center gap-3">
           <button
-            onClick={prevStep}
+            onClick={handleBack}
             className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
             aria-label="Atrás"
           >
@@ -95,7 +102,6 @@ export function SellerFormShell() {
             {currentStepIndex}/{steps.length - 1}
           </span>
         </div>
-      )}
 
       <div className="flex-1 flex flex-col">
         <AnimatePresence mode="wait">

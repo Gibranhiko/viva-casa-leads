@@ -16,7 +16,8 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 const RED_FLAG_META: Record<RedFlag, { label: string; description: string; color: 'red' | 'yellow' | 'gold' }> = {
-  cfe_inactivo:                    { label: 'CFE inactivo',                 description: 'La luz no está activa. Puede tener adeudo o no estar dada de alta.',                       color: 'yellow' },
+  cfe_inactivo:                    { label: 'CFE inactivo',                 description: 'La luz no está activa. No está dada de alta o fue cortada.',                            color: 'yellow' },
+  servicios_con_adeudo:            { label: 'Servicios con adeudo/cortados', description: 'Luz, agua o gas con adeudo, o agua cortada (SADM/SAPASA). Verificar monto antes de cerrar.', color: 'yellow' },
   escrituras_otro_nombre:          { label: 'Escrituras en otro nombre',    description: 'Las escrituras no están a nombre del vendedor. Requiere trámites adicionales.',            color: 'red'    },
   sin_escrituras:                  { label: 'Sin escrituras',               description: 'La propiedad no está escriturada. Requiere regularización antes de vender.',               color: 'red'    },
   multiple_duenos:                 { label: 'Múltiples dueños',             description: 'Todos los propietarios deben estar presentes o representados para firmar.',                 color: 'yellow' },
@@ -91,7 +92,9 @@ interface SellerDetail {
   condicionFisica: string | null
   fotoPaths: string[]
   ocupacion: string | null
-  serviciosActivos: string[]
+  luzEstado: string | null
+  aguaEstado: string | null
+  gasEstado: string | null
   predialAlCorriente: string | null
   estadoCivil: string | null
   tieneEscrituras: string | null
@@ -265,7 +268,9 @@ export function SellerLeadDetailPage() {
         {/* Situación */}
         <Section title="Situación de la propiedad">
           <Field label="Ocupación" value={lead.ocupacion} />
-          <Field label="Servicios activos" value={lead.serviciosActivos} />
+          <Field label="Luz (CFE)" value={lead.luzEstado} />
+          <Field label="Agua" value={lead.aguaEstado} />
+          <Field label="Gas" value={lead.gasEstado} />
           <Field label="Predial" value={lead.predialAlCorriente} />
           <Field label="Cuotas de condominio" value={lead.cuotasCondominio} />
         </Section>

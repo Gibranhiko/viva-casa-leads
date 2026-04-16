@@ -31,8 +31,8 @@ export function StepSellerDireccion() {
           className={inputClass}
         >
           <option value="">Municipio</option>
-          {MUNICIPIOS_MTY.map((m) => (
-            <option key={m} value={m}>{m}</option>
+          {MUNICIPIOS_MTY.map(({ value, label }) => (
+            <option key={value} value={value}>{label}</option>
           ))}
         </select>
         <p className="text-xs text-gray-400 -mt-1 px-1">

@@ -1,5 +1,6 @@
 export type RedFlag =
   | 'cfe_inactivo'
+  | 'servicios_con_adeudo'
   | 'escrituras_otro_nombre'
   | 'sin_escrituras'
   | 'multiple_duenos'
@@ -31,7 +32,7 @@ export interface SellerLead {
   fraccionamiento: string
   calle: string
   cp: string
-  tipoPropiedad: 'fraccionamiento' | 'colonia' | 'departamento' | 'terreno'
+  tipoPropiedad: 'fracc_privado' | 'fracc_abierto' | 'departamento' | 'terreno'
   recamaras: '1' | '2' | '3' | '4+'
   banos: '1' | '2' | '3+'
   m2Construccion: 'menos_60' | '60_90' | '90_120' | 'mas_120' | 'no_se'
@@ -45,7 +46,9 @@ export interface SellerLead {
   ocupacion: 'habitada' | 'rentada' | 'desocupada' | 'invadida'
 
   // Servicios y adeudos
-  serviciosActivos: ('luz' | 'agua' | 'gas')[]
+  luzEstado: 'activo' | 'adeudo' | 'inactivo'
+  aguaEstado: 'activo' | 'adeudo' | 'inactivo'
+  gasEstado: 'activo' | 'adeudo' | 'inactivo'
   predialAlCorriente: 'si' | 'no' | 'no_se'
 
   // Propietario

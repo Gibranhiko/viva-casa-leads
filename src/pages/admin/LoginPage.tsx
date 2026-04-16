@@ -65,6 +65,12 @@ export function LoginPage() {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+        <button
+          onClick={() => navigate('/')}
+          className="text-white/40 hover:text-white/70 text-sm transition-colors text-center"
+        >
+          ← Volver al inicio
+        </button>
       </div>
     </div>
   )

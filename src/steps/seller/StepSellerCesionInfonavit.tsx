@@ -3,8 +3,8 @@ import { StepLayout } from '@/components/form/StepLayout'
 import { StepCard } from '@/components/form/StepCard'
 
 const OPTIONS = [
-  { value: 'liquidar', label: 'Liquidarlo con el producto de la venta', description: 'Proceso normal' },
-  { value: 'ceder',    label: 'Ya no quiero seguir pagando — me ayudan', description: 'Existen opciones para transferir el crédito a otra persona' },
+  { value: 'ceder',    label: 'Necesito que me quiten este crédito cuanto antes', description: 'No quiero o no puedo seguir pagando — quiero una salida ya' },
+  { value: 'liquidar', label: 'Puedo esperar el proceso de venta sin problema',    description: 'No me urge, puedo esperar el proceso de venta' },
 ]
 
 export function StepSellerCesionInfonavit() {
@@ -20,7 +20,7 @@ export function StepSellerCesionInfonavit() {
 
   return (
     <StepLayout
-      title="¿Qué preferirías hacer con tu crédito INFONAVIT?"
+      title="¿Qué tan urgente es tu situación con el crédito INFONAVIT?"
       hideNext
     >
       <StepCard options={OPTIONS} selected={selected} onSelect={handleSelect} />

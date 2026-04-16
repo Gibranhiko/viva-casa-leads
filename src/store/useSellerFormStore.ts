@@ -38,7 +38,7 @@ interface SellerFormData {
   fraccionamiento: string
   calle: string
   cp: string
-  tipoPropiedad: 'fraccionamiento' | 'colonia' | 'departamento' | 'terreno' | null
+  tipoPropiedad: 'fracc_privado' | 'fracc_abierto' | 'departamento' | 'terreno' | null
   recamaras: '1' | '2' | '3' | '4+' | null
   banos: '1' | '2' | '3+' | null
   m2Construccion: 'menos_60' | '60_90' | '90_120' | 'mas_120' | 'no_se' | null
@@ -52,7 +52,9 @@ interface SellerFormData {
   ocupacion: 'habitada' | 'rentada' | 'desocupada' | 'invadida' | null
 
   // Servicios y adeudos
-  serviciosActivos: ('luz' | 'agua' | 'gas')[]
+  luzEstado: 'activo' | 'adeudo' | 'inactivo' | null
+  aguaEstado: 'activo' | 'adeudo' | 'inactivo' | null
+  gasEstado: 'activo' | 'adeudo' | 'inactivo' | null
   predialAlCorriente: 'si' | 'no' | 'no_se' | null
 
   // Propietario
@@ -93,6 +95,14 @@ function buildSellerSteps(data: SellerFormData): SellerStepId[] {
     'seller_nombre', 'seller_whatsapp', 'seller_email',
     'seller_direccion',
     'seller_tipo_propiedad',
+  ]
+
+  // Cuotas solo si fracc privado o departamento
+  if (data.tipoPropiedad === 'fracc_privado' || data.tipoPropiedad === 'departamento') {
+    steps.push('seller_cuotas_condominio')
+  }
+
+  steps.push(
     'seller_recamaras', 'seller_banos', 'seller_m2', 'seller_antiguedad',
     'seller_condicion',
     'seller_fotos',
@@ -102,7 +112,7 @@ function buildSellerSteps(data: SellerFormData): SellerStepId[] {
     'seller_estado_civil',
     'seller_escrituras',
     'seller_num_duenos',
-  ]
+  )
 
   // Condicional: disponibilidad de dueños solo si hay más de uno
   if (data.numeroDuenos === 'pareja' || data.numeroDuenos === 'varios') {
@@ -118,11 +128,6 @@ function buildSellerSteps(data: SellerFormData): SellerStepId[] {
     steps.push('seller_cancelacion_infonavit')
   }
 
-  // Condicional: cuotas solo para dept o fracc
-  if (data.tipoPropiedad === 'departamento' || data.tipoPropiedad === 'fraccionamiento') {
-    steps.push('seller_cuotas_condominio')
-  }
-
   steps.push('seller_precio', 'seller_urgencia', 'seller_comentarios')
 
   return steps
@@ -136,7 +141,13 @@ export function calcularRedFlags(data: SellerFormData): RedFlag[] {
   if (data.ocupacion === 'invadida')                   flags.push('propiedad_invadida')
   if (data.ocupacion === 'rentada')                    flags.push('inquilinos_presentes')
 
-  if (!data.serviciosActivos.includes('luz'))          flags.push('cfe_inactivo')
+  if (data.luzEstado === 'inactivo')                    flags.push('cfe_inactivo')
+  if (
+    data.luzEstado   === 'adeudo' ||
+    data.aguaEstado  === 'adeudo' ||
+    data.gasEstado   === 'adeudo' ||
+    data.aguaEstado  === 'inactivo'  // agua cortada = probable adeudo SADM/SAPASA
+  )                                                    flags.push('servicios_con_adeudo')
   if (data.predialAlCorriente !== 'si')                flags.push('predial_insoluto')
 
   if (data.estadoCivil === 'divorciado')               flags.push('estado_civil_divorciado')
@@ -183,7 +194,9 @@ function getInitialState(): SellerFormData {
     condicionFisica: null,
     fotoPaths: [],
     ocupacion: null,
-    serviciosActivos: [],
+    luzEstado: null,
+    aguaEstado: null,
+    gasEstado: null,
     predialAlCorriente: null,
     estadoCivil: null,
     tieneEscrituras: null,
