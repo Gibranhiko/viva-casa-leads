@@ -1,5 +1,3 @@
-import { useFormStore } from '@/store/useFormStore'
-
 interface StepLayoutProps {
   title: string
   subtitle?: string
@@ -19,8 +17,6 @@ export function StepLayout({
   hideNext = false,
   children,
 }: StepLayoutProps) {
-  const nextStep = useFormStore((s) => s.nextStep)
-
   return (
     <div className="px-6 pt-8 pb-6 max-w-lg mx-auto w-full">
       <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
@@ -30,7 +26,7 @@ export function StepLayout({
 
       {!hideNext && (
         <button
-          onClick={onNext ?? nextStep}
+          onClick={onNext}
           disabled={nextDisabled}
           className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold text-lg py-4 rounded-2xl transition-colors mt-6"
         >

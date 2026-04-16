@@ -7,5 +7,12 @@ service firebase.storage {
       allow read: if request.auth != null
                  && request.auth.token.email == 'gibranhiko@gmail.com';
     }
+
+    match /seller-photos/{sellerId}/{filename} {
+      allow write: if request.resource.size < 8 * 1024 * 1024
+                   && request.resource.contentType.matches('image/(jpeg|png|webp|heic|heif)');
+      allow read: if request.auth != null
+                 && request.auth.token.email == 'gibranhiko@gmail.com';
+    }
   }
 }

@@ -6,6 +6,7 @@ import { exportToCSV } from '@/lib/exportCsv'
 import { useNavigate } from 'react-router'
 import imagotipo from '@/assets/imagotipo.png'
 
+
 const STATUS_COLORS: Record<string, string> = {
   nuevo: 'bg-blue-100 text-blue-700',
   contactado: 'bg-yellow-100 text-yellow-700',
@@ -76,7 +77,21 @@ export function LeadsPage() {
           <img src={imagotipo} alt="Viva Casa" className="h-8 object-contain" />
           <div>
             <p className="text-sm font-bold text-gray-900 leading-tight">Viva Casa</p>
-            <p className="text-xs text-gray-400 leading-tight">Leads Admin</p>
+            <p className="text-xs text-gray-400 leading-tight">Compradores Admin</p>
+          </div>
+          {/* Nav tabs */}
+          <div className="hidden sm:flex items-center gap-1 ml-4 bg-gray-100 rounded-lg p-1">
+            <button
+              className="px-3 py-1.5 text-xs font-medium rounded-md bg-white text-orange-600 shadow-sm"
+            >
+              Compradores
+            </button>
+            <button
+              onClick={() => navigate('/admin/vendedores')}
+              className="px-3 py-1.5 text-xs font-medium rounded-md text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              Vendedores
+            </button>
           </div>
         </div>
         <div className="flex items-center gap-3">

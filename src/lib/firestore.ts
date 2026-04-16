@@ -1,6 +1,8 @@
 import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { db } from './firebase'
 import type { FormStore } from '@/store/useFormStore'
+import type { SellerFormStore } from '@/store/useSellerFormStore'
+import { calcularRedFlags } from '@/store/useSellerFormStore'
 
 const INFONAVIT_TYPES = ['infonavit_tradicional', 'infonavit_total', 'cofinavit', 'unamos_creditos', 'segundo_credito']
 
@@ -65,6 +67,63 @@ export async function submitLead(store: FormStore) {
 
 export async function updateLeadStatus(leadId: string, status: string) {
   await updateDoc(doc(db, 'leads', leadId), {
+    status,
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export async function submitSellerLead(store: SellerFormStore) {
+  const ref = doc(db, 'seller-leads', store.sellerId)
+  const redFlags = calcularRedFlags(store)
+  await setDoc(ref, {
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    status: 'nuevo',
+    fuente: 'formulario_web',
+
+    nombre: store.nombre.trim(),
+    whatsapp: store.whatsapp,
+    email: store.email,
+
+    municipio: store.municipio,
+    fraccionamiento: store.fraccionamiento,
+    calle: store.calle,
+    cp: store.cp,
+    tipoPropiedad: store.tipoPropiedad,
+    recamaras: store.recamaras,
+    banos: store.banos,
+    m2Construccion: store.m2Construccion,
+    antiguedad: store.antiguedad,
+    condicionFisica: store.condicionFisica,
+
+    fotoPaths: store.fotoPaths,
+
+    ocupacion: store.ocupacion,
+    serviciosActivos: store.serviciosActivos,
+    predialAlCorriente: store.predialAlCorriente,
+
+    estadoCivil: store.estadoCivil,
+
+    tieneEscrituras: store.tieneEscrituras,
+    numeroDuenos: store.numeroDuenos,
+    duenosDisponibles: store.duenosDisponibles,
+
+    situacionCredito: store.situacionCredito,
+    cesionInfonvitInteres: store.cesionInfonvitInteres,
+    cancelacionInfonvitRegistrada: store.cancelacionInfonvitRegistrada,
+
+    cuotasCondominio: store.cuotasCondominio,
+
+    redFlags,
+
+    precioPedido: store.precioPedido,
+    urgencia: store.urgencia,
+    comentarios: store.comentarios,
+  })
+}
+
+export async function updateSellerLeadStatus(id: string, status: string) {
+  await updateDoc(doc(db, 'seller-leads', id), {
     status,
     updatedAt: serverTimestamp(),
   })

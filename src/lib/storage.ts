@@ -53,6 +53,15 @@ export async function uploadNssImage(file: File, leadId: string): Promise<string
   return path
 }
 
+export async function uploadSellerPhoto(file: File, sellerId: string, index: number): Promise<string> {
+  const validationError = validateImageFile(file)
+  if (validationError) throw new Error(validationError)
+  const compressed = await compressImage(file)
+  const path = `seller-photos/${sellerId}/${index}.jpg`
+  await uploadBytes(ref(storage, path), compressed, { contentType: 'image/jpeg' })
+  return path
+}
+
 // Solo para uso en el panel admin (requiere auth)
 export async function getImageUrl(path: string): Promise<string> {
   return getDownloadURL(ref(storage, path))

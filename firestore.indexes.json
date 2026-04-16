@@ -33,6 +33,22 @@
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     }
+    ,{
+      "collectionGroup": "seller-leads",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "seller-leads",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "municipio", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
   ],
   "fieldOverrides": []
 }

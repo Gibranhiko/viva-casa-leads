@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useFormStore } from '@/store/useFormStore'
 import { useNavigate } from 'react-router'
 import logo from '@/assets/viva-casa-logo.png'
@@ -7,7 +6,6 @@ import logo from '@/assets/viva-casa-logo.png'
 export function StepWelcome() {
   const nextStep = useFormStore((s) => s.nextStep)
   const navigate = useNavigate()
-  const [showUnderConstruction, setShowUnderConstruction] = useState(false)
 
   return (
     <div
@@ -47,7 +45,7 @@ export function StepWelcome() {
           </button>
 
           <button
-            onClick={() => setShowUnderConstruction(true)}
+            onClick={() => navigate('/vender')}
             className="w-full bg-white/20 border-2 border-white/40 text-white font-bold text-lg py-4 rounded-2xl active:scale-95 transition-transform"
           >
             🏷️ Quiero vender casa
@@ -61,39 +59,6 @@ export function StepWelcome() {
           </button>
         </motion.div>
       </motion.div>
-
-      {/* Under construction modal */}
-      <AnimatePresence>
-        {showUnderConstruction && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center px-6 z-50"
-            onClick={() => setShowUnderConstruction(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl p-8 max-w-sm w-full text-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <span className="text-5xl">🚧</span>
-              <h2 className="text-xl font-bold text-gray-900 mt-4 mb-2">En construcción</h2>
-              <p className="text-gray-500 text-sm mb-6">
-                Pronto podrás publicar tu propiedad con nosotros. ¡Vuelve pronto!
-              </p>
-              <button
-                onClick={() => setShowUnderConstruction(false)}
-                className="w-full bg-orange-500 text-white font-semibold py-3 rounded-xl"
-              >
-                Entendido
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }
