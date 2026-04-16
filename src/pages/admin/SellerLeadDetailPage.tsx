@@ -130,10 +130,9 @@ export function SellerLeadDetailPage() {
           ...data,
           id: snap.id,
           fotoPaths: data.fotoPaths ?? [],
-          serviciosActivos: data.serviciosActivos ?? [],
           redFlags: data.redFlags ?? [],
           createdAt: data.createdAt?.toDate() ?? new Date(),
-        } as SellerDetail
+        } as unknown as SellerDetail
         setLead(detail)
 
         // Cargar URLs de fotos
