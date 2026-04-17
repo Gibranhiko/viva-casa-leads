@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
 button, a, [role="button"] {
   touch-action: manipulation;
 }

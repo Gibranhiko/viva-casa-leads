@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useFormStore } from '@/store/useFormStore'
+import { useSellerFormStore } from '@/store/useSellerFormStore'
 import { StepLayout } from '@/components/form/StepLayout'
 
-export function StepContacto() {
-  const { nombre, whatsapp, email, edad, setField, nextStep } = useFormStore()
+export function StepSellerContacto() {
+  const { nombre, whatsapp, email, edad, setField, nextStep } = useSellerFormStore()
   const [localEmail, setLocalEmail] = useState(email ?? '')
   const [errors, setErrors] = useState({ nombre: '', whatsapp: '', email: '', edad: '' })
 
@@ -21,12 +21,12 @@ export function StepContacto() {
   }
 
   return (
-    <StepLayout title="¿Cómo te contactamos?" subtitle="Solo toma 3 minutos" onNext={handleNext}>
+    <StepLayout title="¿Cómo te contactamos?" onNext={handleNext}>
       <div className="flex flex-col gap-4">
         <div>
-          <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+          <label htmlFor="seller-nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
           <input
-            id="nombre"
+            id="seller-nombre"
             type="text"
             value={nombre}
             onChange={(e) => { setField('nombre', e.target.value); setErrors((p) => ({ ...p, nombre: '' })) }}
@@ -39,11 +39,11 @@ export function StepContacto() {
         </div>
 
         <div>
-          <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
+          <label htmlFor="seller-whatsapp" className="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
           <div className={`flex items-center border-2 rounded-xl overflow-hidden transition-colors ${errors.whatsapp ? 'border-red-500' : 'border-gray-200 focus-within:border-orange-500'}`}>
             <span className="px-3 py-3 text-base text-gray-500 bg-gray-50 border-r-2 border-gray-200 select-none">+52</span>
             <input
-              id="whatsapp"
+              id="seller-whatsapp"
               type="tel"
               value={whatsapp}
               onChange={(e) => { setField('whatsapp', e.target.value.replace(/\D/g, '').slice(0, 10)); setErrors((p) => ({ ...p, whatsapp: '' })) }}
@@ -56,9 +56,9 @@ export function StepContacto() {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email <span className="text-gray-400 font-normal">(opcional)</span></label>
+          <label htmlFor="seller-email" className="block text-sm font-medium text-gray-700 mb-1">Email <span className="text-gray-400 font-normal">(opcional)</span></label>
           <input
-            id="email"
+            id="seller-email"
             type="email"
             value={localEmail}
             onChange={(e) => { setLocalEmail(e.target.value); setErrors((p) => ({ ...p, email: '' })) }}
@@ -69,9 +69,9 @@ export function StepContacto() {
         </div>
 
         <div>
-          <label htmlFor="edad" className="block text-sm font-medium text-gray-700 mb-1">Edad</label>
+          <label htmlFor="seller-edad" className="block text-sm font-medium text-gray-700 mb-1">Edad</label>
           <input
-            id="edad"
+            id="seller-edad"
             type="number"
             value={edad ?? ''}
             onChange={(e) => { setField('edad', parseInt(e.target.value) || null); setErrors((p) => ({ ...p, edad: '' })) }}

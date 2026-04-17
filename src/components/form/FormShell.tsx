@@ -5,11 +5,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 // Steps
 import { StepWelcome } from '@/steps/StepWelcome'
 import { StepContacto } from '@/steps/StepContacto'
-import { StepEmail } from '@/steps/StepEmail'
 import { StepPerfil } from '@/steps/StepPerfil'
 import { StepDomicilio } from '@/steps/StepDomicilio'
 import { StepSituacionLaboral } from '@/steps/StepSituacionLaboral'
-import { StepEmpresa } from '@/steps/StepEmpresa'
 import { StepIngreso } from '@/steps/StepIngreso'
 import { StepTipoCredito } from '@/steps/StepTipoCredito'
 import { StepNSS } from '@/steps/StepNSS'
@@ -26,11 +24,9 @@ import type { StepId } from '@/store/useFormStore'
 const STEP_COMPONENTS: Record<StepId, React.ComponentType> = {
   welcome: StepWelcome,
   contacto: StepContacto,
-  email: StepEmail,
   perfil: StepPerfil,
   domicilio: StepDomicilio,
   situacionLaboral: StepSituacionLaboral,
-  empresa: StepEmpresa,
   ingreso: StepIngreso,
   tipoCredito: StepTipoCredito,
   nss: StepNSS,

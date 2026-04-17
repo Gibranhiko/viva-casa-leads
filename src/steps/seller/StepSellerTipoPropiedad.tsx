@@ -2,28 +2,50 @@ import { useSellerFormStore } from '@/store/useSellerFormStore'
 import { StepLayout } from '@/components/form/StepLayout'
 import { StepCard } from '@/components/form/StepCard'
 
-const OPTIONS = [
-  { value: 'fracc_privado', label: 'Casa en fracc privado', description: 'Con caseta y acceso controlado' },
-  { value: 'fracc_abierto', label: 'Casa en fracc abierto' },
+const TIPO_OPTIONS = [
+  { value: 'fracc_privado', label: 'Fracc privado', description: 'Con caseta y acceso controlado' },
+  { value: 'fracc_abierto', label: 'Fracc abierto' },
   { value: 'departamento',  label: 'Departamento' },
   { value: 'terreno',       label: 'Terreno' },
 ]
 
-export function StepSellerTipoPropiedad() {
-  const { tipoPropiedad, setField, nextStep } = useSellerFormStore()
+const CUOTAS_OPTIONS = [
+  { value: 'al_corriente', label: 'Al corriente' },
+  { value: 'con_adeudo',   label: 'Tengo adeudo' },
+  { value: 'no_aplica',    label: 'No hay / No sé' },
+]
 
-  const handleSelect = (value: string) => {
-    setField('tipoPropiedad', value as typeof tipoPropiedad)
+export function StepSellerTipoPropiedad() {
+  const { tipoPropiedad, cuotasCondominio, setField, nextStep } = useSellerFormStore()
+
+  const showCuotas = tipoPropiedad === 'fracc_privado' || tipoPropiedad === 'departamento'
+
+  const handleTipo = (value: string) => {
+    const tipo = value as typeof tipoPropiedad
+    setField('tipoPropiedad', tipo)
+    const needsCuotas = tipo === 'fracc_privado' || tipo === 'departamento'
+    if (!needsCuotas) {
+      setField('cuotasCondominio', 'no_aplica')
+      setTimeout(nextStep, 200)
+    }
+  }
+
+  const handleCuotas = (value: string) => {
+    setField('cuotasCondominio', value as typeof cuotasCondominio)
     setTimeout(nextStep, 200)
   }
 
   return (
     <StepLayout title="¿Qué tipo de propiedad es?" hideNext>
-      <StepCard
-        options={OPTIONS}
-        selected={tipoPropiedad}
-        onSelect={handleSelect}
-      />
+      <div className="flex flex-col gap-6">
+        <StepCard columns={2} options={TIPO_OPTIONS} selected={tipoPropiedad} onSelect={handleTipo} />
+        {showCuotas && (
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">¿Estás al corriente con las cuotas de mantenimiento?</p>
+            <StepCard options={CUOTAS_OPTIONS} selected={cuotasCondominio} onSelect={handleCuotas} />
+          </div>
+        )}
+      </div>
     </StepLayout>
   )
 }

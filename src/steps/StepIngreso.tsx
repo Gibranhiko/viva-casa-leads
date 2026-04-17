@@ -21,7 +21,7 @@ export function StepIngreso() {
 
   return (
     <StepLayout title="¿Cuánto ganas al mes aproximadamente?" hideNext>
-      <StepCard options={OPTIONS} selected={ingresoMensual} onSelect={handleSelect} />
+      <StepCard columns={2} options={OPTIONS} selected={ingresoMensual} onSelect={handleSelect} />
     </StepLayout>
   )
 }

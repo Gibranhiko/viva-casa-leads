@@ -6,24 +6,24 @@ import { StepLayout } from '@/components/form/StepLayout'
 import type { TipoInmueble } from '@/types/lead'
 
 const ZONAS = [
-  { value: 'monterrey', label: 'Monterrey' },
-  { value: 'san_pedro', label: 'San Pedro Garza García' },
-  { value: 'santa_catarina', label: 'Santa Catarina' },
-  { value: 'guadalupe', label: 'Guadalupe' },
-  { value: 'apodaca', label: 'Apodaca' },
-  { value: 'escobedo', label: 'General Escobedo' },
-  { value: 'garcia', label: 'García' },
-  { value: 'juarez', label: 'Juárez' },
-  { value: 'san_nicolas', label: 'San Nicolás de los Garza' },
-  { value: 'cadereyta', label: 'Cadereyta' },
-  { value: 'indiferente', label: 'Me da igual' },
+  { value: 'monterrey',    label: 'Monterrey' },
+  { value: 'san_pedro',    label: 'San Pedro' },
+  { value: 'santa_catarina', label: 'Sta. Catarina' },
+  { value: 'guadalupe',    label: 'Guadalupe' },
+  { value: 'apodaca',      label: 'Apodaca' },
+  { value: 'escobedo',     label: 'Escobedo' },
+  { value: 'garcia',       label: 'García' },
+  { value: 'juarez',       label: 'Juárez' },
+  { value: 'san_nicolas',  label: 'San Nicolás' },
+  { value: 'cadereyta',    label: 'Cadereyta' },
+  { value: 'indiferente',  label: 'Me da igual' },
 ]
 
 const TIPO_OPTIONS = [
-  { value: 'fraccionamiento', label: 'Casa en fraccionamiento' },
-  { value: 'colonia', label: 'Casa en colonia' },
-  { value: 'departamento', label: 'Departamento' },
-  { value: 'indiferente', label: 'Me da igual' },
+  { value: 'fraccionamiento', label: 'Fracc privado' },
+  { value: 'colonia',         label: 'Fracc abierto' },
+  { value: 'departamento',    label: 'Departamento' },
+  { value: 'indiferente',     label: 'Me da igual' },
 ]
 
 export function StepBusqueda() {
@@ -44,7 +44,7 @@ export function StepBusqueda() {
   const handleNext = () => {
     const next = { zonas: '', tipo: '' }
     if (zonasInteres.length === 0) next.zonas = 'Selecciona al menos una zona'
-    if (!tipoInmueble) next.tipo = 'Selecciona un tipo de propiedad'
+    if (!tipoInmueble) next.tipo = 'Selecciona un tipo'
     if (next.zonas || next.tipo) { setErrors(next); return }
     nextStep()
   }
@@ -61,6 +61,7 @@ export function StepBusqueda() {
         <div>
           <p className="text-sm font-medium text-gray-700 mb-2">Tipo de propiedad</p>
           <StepCard
+            columns={2}
             options={TIPO_OPTIONS}
             selected={tipoInmueble}
             onSelect={(v) => { setField('tipoInmueble', v as TipoInmueble); setErrors((p) => ({ ...p, tipo: '' })) }}

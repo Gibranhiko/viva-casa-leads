@@ -24,7 +24,7 @@ export function StepWelcome() {
         <img src={logo} alt="Viva Casa" className="w-52 object-contain" />
 
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Cinzel', serif" }}>
+          <h1 className="text-2xl font-bold text-white">
             Bienvenido a Viva Casa
           </h1>
           <p className="text-orange-100 text-base leading-relaxed">

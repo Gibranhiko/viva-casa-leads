@@ -8,9 +8,9 @@ import type {
 
 export type StepId =
   | 'welcome'
-  | 'contacto' | 'email'
+  | 'contacto'
   | 'perfil' | 'domicilio'
-  | 'situacionLaboral' | 'empresa' | 'ingreso'
+  | 'situacionLaboral' | 'ingreso'
   | 'tipoCredito'
   | 'nss' | 'precalificacion'
   | 'banco' | 'enganche'
@@ -80,16 +80,11 @@ const INFONAVIT_TYPES: TipoCredito[] = [
 
 function buildSteps(data: FormData): StepId[] {
   const steps: StepId[] = [
-    'welcome', 'contacto', 'email',
+    'welcome', 'contacto',
     'perfil', 'domicilio',
     'situacionLaboral',
+    'ingreso', 'tipoCredito',
   ]
-
-  if (data.situacionLaboral !== 'sin_empleo') {
-    steps.push('empresa')
-  }
-
-  steps.push('ingreso', 'tipoCredito')
 
   if (data.tipoCredito && INFONAVIT_TYPES.includes(data.tipoCredito)) {
     steps.push('nss', 'precalificacion')

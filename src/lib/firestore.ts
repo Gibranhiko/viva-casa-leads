@@ -84,6 +84,7 @@ export async function submitSellerLead(store: SellerFormStore) {
     nombre: store.nombre.trim(),
     whatsapp: store.whatsapp,
     email: store.email,
+    edad: store.edad,
 
     municipio: store.municipio,
     fraccionamiento: store.fraccionamiento,
@@ -118,6 +119,7 @@ export async function submitSellerLead(store: SellerFormStore) {
 
     redFlags,
 
+    tienePrecio: store.tienePrecio,
     precioPedido: store.precioPedido,
     urgencia: store.urgencia,
     comentarios: store.comentarios,

@@ -22,7 +22,7 @@ export function StepBanco() {
 
   return (
     <StepLayout title="¿Tienes preferencia de banco?" hideNext>
-      <StepCard options={OPTIONS} selected={bancoPreferencia} onSelect={handleSelect} />
+      <StepCard columns={2} options={OPTIONS} selected={bancoPreferencia} onSelect={handleSelect} />
     </StepLayout>
   )
 }

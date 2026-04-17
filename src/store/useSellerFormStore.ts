@@ -4,23 +4,21 @@ import { db } from '@/lib/firebase'
 import type { RedFlag } from '@/types/sellerLead'
 
 export type SellerStepId =
-  | 'seller_nombre' | 'seller_whatsapp' | 'seller_email'
+  | 'seller_contacto'
   | 'seller_direccion'
   | 'seller_tipo_propiedad'
-  | 'seller_recamaras' | 'seller_banos' | 'seller_m2' | 'seller_antiguedad'
+  | 'seller_recamaras_banos'
+  | 'seller_m2_antiguedad'
   | 'seller_condicion'
   | 'seller_fotos'
   | 'seller_ocupacion'
   | 'seller_servicios'
-  | 'seller_predial'
-  | 'seller_estado_civil'
-  | 'seller_escrituras'
-  | 'seller_num_duenos'
+  | 'seller_predial_estado_civil'
+  | 'seller_escrituras_propietarios'
   | 'seller_duenos_disponibles'
   | 'seller_credito'
   | 'seller_cesion_infonavit'
   | 'seller_cancelacion_infonavit'
-  | 'seller_cuotas_condominio'
   | 'seller_precio'
   | 'seller_urgencia'
   | 'seller_comentarios'
@@ -32,6 +30,7 @@ interface SellerFormData {
   nombre: string
   whatsapp: string
   email: string | null
+  edad: number | null
 
   // Propiedad
   municipio: string
@@ -92,36 +91,25 @@ export interface SellerFormStore extends SellerFormData {
 
 function buildSellerSteps(data: SellerFormData): SellerStepId[] {
   const steps: SellerStepId[] = [
-    'seller_nombre', 'seller_whatsapp', 'seller_email',
+    'seller_contacto',
     'seller_direccion',
     'seller_tipo_propiedad',
-  ]
-
-  // Cuotas solo si fracc privado o departamento
-  if (data.tipoPropiedad === 'fracc_privado' || data.tipoPropiedad === 'departamento') {
-    steps.push('seller_cuotas_condominio')
-  }
-
-  steps.push(
-    'seller_recamaras', 'seller_banos', 'seller_m2', 'seller_antiguedad',
+    'seller_recamaras_banos',
+    'seller_m2_antiguedad',
     'seller_condicion',
     'seller_fotos',
     'seller_ocupacion',
     'seller_servicios',
-    'seller_predial',
-    'seller_estado_civil',
-    'seller_escrituras',
-    'seller_num_duenos',
-  )
+    'seller_predial_estado_civil',
+    'seller_escrituras_propietarios',
+  ]
 
-  // Condicional: disponibilidad de dueños solo si hay más de uno
   if (data.numeroDuenos === 'pareja' || data.numeroDuenos === 'varios') {
     steps.push('seller_duenos_disponibles')
   }
 
   steps.push('seller_credito')
 
-  // Condicional: ramas de crédito INFONAVIT
   if (data.situacionCredito === 'infonavit_activo') {
     steps.push('seller_cesion_infonavit')
   } else if (data.situacionCredito === 'infonavit_pagado') {
@@ -187,7 +175,7 @@ function getInitialState(): SellerFormData {
   }
   return {
     sellerId: generateSellerId(),
-    nombre: '', whatsapp: '', email: null,
+    nombre: '', whatsapp: '', email: null, edad: null,
     municipio: '', fraccionamiento: '', calle: '', cp: '',
     tipoPropiedad: null,
     recamaras: null, banos: null, m2Construccion: null, antiguedad: null,

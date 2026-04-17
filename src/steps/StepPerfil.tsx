@@ -5,29 +5,28 @@ import { StepLayout } from '@/components/form/StepLayout'
 import type { EstadoCivil, Dependientes } from '@/types/lead'
 
 const ESTADO_CIVIL_OPTIONS = [
-  { value: 'soltero', label: 'Soltero/a' },
-  { value: 'casado', label: 'Casado/a' },
+  { value: 'soltero',     label: 'Soltero/a' },
+  { value: 'casado',      label: 'Casado/a' },
   { value: 'union_libre', label: 'Unión libre' },
-  { value: 'divorciado', label: 'Divorciado/a' },
-  { value: 'viudo', label: 'Viudo/a' },
+  { value: 'divorciado',  label: 'Divorciado/a' },
+  { value: 'viudo',       label: 'Viudo/a' },
 ]
 
 const DEPENDIENTES_OPTIONS = [
   { value: 'ninguno', label: 'Ninguno' },
-  { value: '1_2', label: '1 o 2' },
-  { value: '3_mas', label: '3 o más' },
+  { value: '1_2',     label: '1 o 2' },
+  { value: '3_mas',   label: '3 o más' },
 ]
 
 export function StepPerfil() {
-  const { edad, estadoCivil, dependientes, setField, nextStep } = useFormStore()
-  const [errors, setErrors] = useState({ edad: '', estadoCivil: '', dependientes: '' })
+  const { estadoCivil, dependientes, setField, nextStep } = useFormStore()
+  const [errors, setErrors] = useState({ estadoCivil: '', dependientes: '' })
 
   const handleNext = () => {
-    const next = { edad: '', estadoCivil: '', dependientes: '' }
-    if (!edad || edad < 18 || edad > 80) next.edad = 'Ingresa una edad válida entre 18 y 80 años'
-    if (!estadoCivil) next.estadoCivil = 'Selecciona tu estado civil'
+    const next = { estadoCivil: '', dependientes: '' }
+    if (!estadoCivil) next.estadoCivil = 'Selecciona una opción'
     if (!dependientes) next.dependientes = 'Selecciona una opción'
-    if (next.edad || next.estadoCivil || next.dependientes) { setErrors(next); return }
+    if (next.estadoCivil || next.dependientes) { setErrors(next); return }
     nextStep()
   }
 
@@ -35,25 +34,9 @@ export function StepPerfil() {
     <StepLayout title="Tu perfil" onNext={handleNext}>
       <div className="flex flex-col gap-6">
         <div>
-          <label htmlFor="edad" className="block text-sm font-medium text-gray-700 mb-1">
-            ¿Cuántos años tienes?
-          </label>
-          <input
-            id="edad"
-            type="number"
-            value={edad ?? ''}
-            onChange={(e) => { setField('edad', parseInt(e.target.value) || null); setErrors((p) => ({ ...p, edad: '' })) }}
-            placeholder="Edad"
-            min={18}
-            max={80}
-            className={`w-full border-2 rounded-xl px-4 py-3 text-lg outline-none transition-colors ${errors.edad ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'}`}
-          />
-          {errors.edad && <p className="text-red-500 text-sm mt-1">{errors.edad}</p>}
-        </div>
-
-        <div>
           <p className="text-sm font-medium text-gray-700 mb-2">Estado civil</p>
           <StepCard
+            columns={2}
             options={ESTADO_CIVIL_OPTIONS}
             selected={estadoCivil}
             onSelect={(v) => { setField('estadoCivil', v as EstadoCivil); setErrors((p) => ({ ...p, estadoCivil: '' })) }}
@@ -62,8 +45,9 @@ export function StepPerfil() {
         </div>
 
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿Tienes dependientes económicos?</p>
+          <p className="text-sm font-medium text-gray-700 mb-2">Dependientes económicos</p>
           <StepCard
+            columns={2}
             options={DEPENDIENTES_OPTIONS}
             selected={dependientes}
             onSelect={(v) => { setField('dependientes', v as Dependientes); setErrors((p) => ({ ...p, dependientes: '' })) }}

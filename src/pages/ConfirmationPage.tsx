@@ -24,7 +24,7 @@ export function ConfirmationPage() {
         </svg>
       </div>
 
-      <h1 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
+      <h1 className="text-2xl font-bold text-white mb-2">
         ¡Gracias{nombre ? `, ${nombre}` : ''}!
       </h1>
       <p className="text-orange-100 max-w-xs mb-8">

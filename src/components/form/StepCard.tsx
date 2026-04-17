@@ -9,11 +9,12 @@ interface StepCardProps {
   options: Option[]
   selected: string | null
   onSelect: (value: string) => void
+  columns?: 2
 }
 
-export function StepCard({ options, selected, onSelect }: StepCardProps) {
+export function StepCard({ options, selected, onSelect, columns }: StepCardProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className={columns === 2 ? 'grid grid-cols-2 gap-2' : 'flex flex-col gap-3'}>
       {options.map((opt) => (
         <button
           key={opt.value}
