@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -8,6 +8,7 @@ import type { SellerLeadEditable } from '@/lib/firestore'
 import type { RedFlag } from '@/types/sellerLead'
 import { MUNICIPIOS_MTY } from '@/lib/municipios'
 import { ConfirmDeleteModal } from '@/components/admin/ConfirmDeleteModal'
+import { MultiPhotoPicker } from '@/components/form/MultiPhotoPicker'
 
 const MAX_PHOTOS = 5
 
@@ -160,11 +161,9 @@ export function SellerLeadDetailPage() {
     comentarios: null,
     fotoPaths: [],
   })
-  // Fotos en edición — se seleccionan todas de una vez
-  const [pendingFiles, setPendingFiles] = useState<File[] | null>(null)
-  const [pendingPreviews, setPendingPreviews] = useState<string[]>([])
+  // Fotos en edición
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [uploadingPhotos, setUploadingPhotos] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Borrar
   const [showDelete, setShowDelete] = useState(false)
@@ -207,11 +206,9 @@ export function SellerLeadDetailPage() {
   }
 
   const cancelEdit = useCallback(() => {
-    pendingPreviews.forEach((url) => URL.revokeObjectURL(url))
-    setPendingFiles(null)
-    setPendingPreviews([])
+    setPendingFiles([])
     setEditing(false)
-  }, [pendingPreviews])
+  }, [])
 
   const startEdit = () => {
     if (!lead) return
@@ -228,18 +225,8 @@ export function SellerLeadDetailPage() {
       comentarios: lead.comentarios,
       fotoPaths: lead.fotoPaths,
     })
-    setPendingFiles(null)
-    setPendingPreviews([])
+    setPendingFiles([])
     setEditing(true)
-  }
-
-  const handleSelectPhotos = (files: FileList) => {
-    const selected = Array.from(files).slice(0, MAX_PHOTOS)
-    // Limpiar previews anteriores
-    pendingPreviews.forEach((url) => URL.revokeObjectURL(url))
-    const previews = selected.map((f) => URL.createObjectURL(f))
-    setPendingFiles(selected)
-    setPendingPreviews(previews)
   }
 
   const handleSave = async () => {
@@ -248,16 +235,13 @@ export function SellerLeadDetailPage() {
     try {
       let newFotoPaths = lead.fotoPaths
 
-      if (pendingFiles !== null) {
+      if (pendingFiles.length > 0) {
         setUploadingPhotos(true)
-        // Borrar primero los paths viejos, luego subir (evita borrar lo recién subido si comparten path)
-        const oldPaths = lead.fotoPaths
-        await Promise.allSettled(oldPaths.map((p) => deleteStorageFile(p)))
-        // Subir nuevas fotos a slots 1..N
+        // Borrar primero los paths viejos, luego subir
+        await Promise.allSettled(lead.fotoPaths.map((p) => deleteStorageFile(p)))
         const uploadedPaths = await Promise.all(
           pendingFiles.map((file, i) => uploadSellerPhoto(file, id, i + 1))
         )
-        // Actualizar URLs en el estado local
         const resolved = await Promise.all(
           uploadedPaths.map(async (p) => {
             const url = await getImageUrl(p).catch(() => '')
@@ -266,9 +250,7 @@ export function SellerLeadDetailPage() {
         )
         setPhotos(resolved.filter(Boolean) as { path: string; url: string }[])
         newFotoPaths = uploadedPaths
-        pendingPreviews.forEach((url) => URL.revokeObjectURL(url))
-        setPendingFiles(null)
-        setPendingPreviews([])
+        setPendingFiles([])
         setUploadingPhotos(false)
       }
 
@@ -455,52 +437,17 @@ export function SellerLeadDetailPage() {
         {/* Fotos */}
         {(photos.length > 0 || editing) && (
           <Section title={editing
-            ? pendingFiles ? `Fotos nuevas (${pendingFiles.length}/${MAX_PHOTOS})` : photos.length > 0 ? `Fotos actuales (${photos.length})` : 'Fotos'
+            ? pendingFiles.length > 0 ? `Fotos nuevas (${pendingFiles.length}/${MAX_PHOTOS})` : photos.length > 0 ? `Fotos actuales (${photos.length})` : 'Fotos'
             : `Fotos (${photos.length})`
           }>
             {editing ? (
-              <>
-                {/* Grid de previews — solo si hay algo que mostrar */}
-                {(pendingPreviews.length > 0 || photos.length > 0) && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {(pendingPreviews.length > 0 ? pendingPreviews : photos.map((p) => p.url)).map((url, i) => (
-                      <div key={i} className="aspect-video rounded-xl overflow-hidden border border-gray-200">
-                        <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* Placeholder cuando no hay fotos ni selección */}
-                {pendingPreviews.length === 0 && photos.length === 0 && (
-                  <p className="text-sm text-gray-400 text-center py-2">Sin fotos — selecciona hasta {MAX_PHOTOS}</p>
-                )}
-                {/* Botón para seleccionar todas las fotos de un jalón */}
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingPhotos}
-                  className="w-full py-2.5 rounded-xl border-2 border-dashed border-gray-300 hover:border-orange-400 text-sm text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-50"
-                >
-                  {uploadingPhotos ? 'Subiendo fotos...' : pendingFiles ? 'Cambiar selección' : photos.length > 0 ? 'Reemplazar fotos' : 'Subir fotos'}
-                </button>
-                {pendingFiles && (
-                  <p className="text-xs text-gray-400 text-center">
-                    {photos.length > 0
-                      ? 'Al guardar se subirán las fotos nuevas y se borrarán las anteriores'
-                      : 'Al guardar se subirán las fotos seleccionadas'}
-                  </p>
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) handleSelectPhotos(e.target.files)
-                    e.target.value = ''
-                  }}
-                />
-              </>
+              <MultiPhotoPicker
+                files={pendingFiles}
+                onChange={setPendingFiles}
+                existingUrls={photos.map((p) => p.url)}
+                max={MAX_PHOTOS}
+                disabled={uploadingPhotos}
+              />
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {photos.map((photo, i) => (
