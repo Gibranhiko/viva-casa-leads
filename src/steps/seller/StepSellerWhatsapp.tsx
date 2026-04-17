@@ -19,11 +19,13 @@ export function StepSellerWhatsapp() {
 
   return (
     <StepLayout title="¿Cuál es tu WhatsApp?" onNext={handleNext}>
-      <div className="flex items-center border-2 border-gray-200 focus-within:border-orange-500 rounded-xl overflow-hidden transition-colors">
+      <label htmlFor="seller-whatsapp" className="sr-only">Número de WhatsApp</label>
+      <div className={`flex items-center border-2 rounded-xl overflow-hidden transition-colors ${error ? 'border-red-500' : 'border-gray-200 focus-within:border-orange-500'}`}>
         <span className="px-3 py-3.5 text-lg text-gray-500 bg-gray-50 border-r-2 border-gray-200 select-none">
           +52
         </span>
         <input
+          id="seller-whatsapp"
           type="tel"
           value={whatsapp}
           onChange={(e) => setField('whatsapp', e.target.value.replace(/\D/g, '').slice(0, 10))}

@@ -23,14 +23,16 @@ export function StepSellerEmail() {
       subtitle="Opcional"
       onNext={handleNext}
     >
+      <label htmlFor="seller-email" className="sr-only">Correo electrónico</label>
       <input
+        id="seller-email"
         type="email"
         value={value}
         onChange={(e) => { setValue(e.target.value); setError('') }}
         onKeyDown={(e) => e.key === 'Enter' && handleNext()}
         placeholder="correo@ejemplo.com"
         autoFocus
-        className="w-full border-2 border-gray-200 focus:border-orange-500 rounded-xl px-4 py-3.5 text-lg outline-none transition-colors"
+        className={`w-full border-2 rounded-xl px-4 py-3.5 text-lg outline-none transition-colors ${error ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'}`}
       />
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       <button

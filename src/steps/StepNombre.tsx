@@ -18,16 +18,19 @@ export function StepNombre() {
   return (
     <StepLayout
       title="¿Cuál es tu nombre?"
+      subtitle="Solo toma 3 minutos"
       onNext={handleNext}
     >
+      <label htmlFor="nombre" className="sr-only">Nombre completo</label>
       <input
+        id="nombre"
         type="text"
         value={nombre}
-        onChange={(e) => setField('nombre', e.target.value)}
+        onChange={(e) => { setField('nombre', e.target.value); setError('') }}
         onKeyDown={(e) => e.key === 'Enter' && handleNext()}
         placeholder="Nombre completo"
         autoFocus
-        className="w-full border-2 border-gray-200 focus:border-orange-500 rounded-xl px-4 py-3.5 text-lg outline-none transition-colors"
+        className={`w-full border-2 rounded-xl px-4 py-3.5 text-lg outline-none transition-colors ${error ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'}`}
       />
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </StepLayout>

@@ -84,7 +84,7 @@ export function SellerFormShell() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-dvh bg-white flex flex-col">
       <div className="px-4 pt-4 pb-2 flex items-center gap-3">
           <button
             onClick={handleBack}
@@ -98,18 +98,15 @@ export function SellerFormShell() {
           <div className="flex-1">
             <ProgressBar current={currentStepIndex} total={steps.length - 1} />
           </div>
-          <span className="text-xs text-gray-400 tabular-nums w-10 text-right">
-            {currentStepIndex}/{steps.length - 1}
-          </span>
         </div>
 
       <div className="flex-1 flex flex-col">
         <AnimatePresence mode="wait">
           <motion.div
             key={stepId}
-            initial={{ opacity: 0, x: 40 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
+            exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.22, ease: 'easeInOut' }}
             className="flex-1 flex flex-col"
           >

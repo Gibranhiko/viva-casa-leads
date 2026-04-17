@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useFormStore } from '@/store/useFormStore'
 import { useNavigate } from 'react-router'
 import logo from '@/assets/viva-casa-logo.png'
+import { Home, Tag } from 'lucide-react'
 
 export function StepWelcome() {
   const nextStep = useFormStore((s) => s.nextStep)
@@ -9,7 +10,7 @@ export function StepWelcome() {
 
   return (
     <div
-      className="flex-1 flex flex-col items-center justify-center min-h-screen px-6 py-16"
+      className="flex-1 flex flex-col items-center justify-center min-h-dvh px-6 py-16"
       style={{
         background: 'linear-gradient(160deg, #7c2d00 0%, #c2410c 40%, #ea580c 70%, #fb923c 100%)',
       }}
@@ -39,26 +40,20 @@ export function StepWelcome() {
         >
           <button
             onClick={nextStep}
-            className="w-full bg-white text-orange-600 font-bold text-lg py-4 rounded-2xl shadow-lg active:scale-95 transition-transform"
+            className="w-full bg-white text-orange-600 font-bold text-lg py-4 rounded-2xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2"
           >
-            🏠 Quiero comprar casa
+            <Home size={20} /> Quiero comprar casa
           </button>
 
           <button
             onClick={() => navigate('/vender')}
-            className="w-full bg-white/20 border-2 border-white/40 text-white font-bold text-lg py-4 rounded-2xl active:scale-95 transition-transform"
+            className="w-full bg-white/20 border-2 border-white/40 text-white font-bold text-lg py-4 rounded-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
           >
-            🏷️ Quiero vender casa
+            <Tag size={20} /> Quiero vender casa
           </button>
 
         </motion.div>
 
-        <button
-          onClick={() => navigate('/admin/login')}
-          className="text-white/40 hover:text-white/70 text-sm transition-colors mt-4"
-        >
-          Admin Leads
-        </button>
       </motion.div>
     </div>
   )

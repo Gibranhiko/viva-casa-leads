@@ -9,6 +9,8 @@ import type { RedFlag } from '@/types/sellerLead'
 import { MUNICIPIOS_MTY } from '@/lib/municipios'
 import { ConfirmDeleteModal } from '@/components/admin/ConfirmDeleteModal'
 import { MultiPhotoPicker } from '@/components/form/MultiPhotoPicker'
+import { MessageCircle, Mail } from 'lucide-react'
+import { DetailSkeleton } from '@/components/admin/DetailSkeleton'
 
 const MAX_PHOTOS = 5
 
@@ -46,10 +48,12 @@ function RedFlagBadge({ flag }: { flag: RedFlag }) {
     : meta.color === 'gold'
     ? 'bg-amber-50 border-amber-200 text-amber-700'
     : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-  const icon = meta.color === 'gold' ? '★' : '⚠'
+  const icon = meta.color === 'gold'
+    ? <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
   return (
     <div className={`border rounded-xl p-3 ${colorClass}`}>
-      <p className="text-sm font-semibold flex items-center gap-1.5"><span>{icon}</span>{meta.label}</p>
+      <p className="text-sm font-semibold flex items-center gap-1.5">{icon}{meta.label}</p>
       <p className="text-xs mt-1 opacity-75">{meta.description}</p>
     </div>
   )
@@ -273,7 +277,7 @@ export function SellerLeadDetailPage() {
     navigate('/admin/vendedores')
   }
 
-  if (loading) return <div className="p-12 text-center text-gray-400">Cargando...</div>
+  if (loading) return <DetailSkeleton />
   if (!lead) return <div className="p-12 text-center text-gray-400">Lead no encontrado</div>
 
   const warningFlags = lead.redFlags.filter((f: RedFlag) => f !== 'cesion_infonavit_interes')
@@ -336,14 +340,14 @@ export function SellerLeadDetailPage() {
               rel="noreferrer"
               className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
             >
-              <span>💬</span> Abrir WhatsApp
+              <MessageCircle size={16} /> Abrir WhatsApp
             </a>
             {lead.email && (
               <a
                 href={`mailto:${lead.email}`}
                 className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
               >
-                <span>✉️</span> Enviar email
+                <Mail size={16} /> Enviar email
               </a>
             )}
           </div>
@@ -366,13 +370,13 @@ export function SellerLeadDetailPage() {
                   key={s}
                   onClick={() => handleStatusChange(s)}
                   disabled={updatingStatus || lead.status === s}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all capitalize
+                  className={`px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-medium border-2 transition-all
                     ${lead.status === s
                       ? 'border-orange-500 bg-orange-50 text-orange-700'
                       : 'border-gray-200 text-gray-600 hover:border-orange-300'
                     }`}
                 >
-                  {s.replace(/_/g, ' ')}
+                  {s.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase())}
                 </button>
               ))}
             </div>
@@ -556,9 +560,12 @@ export function SellerLeadDetailPage() {
           />
           <button
             onClick={() => setLightbox(null)}
-            className="absolute top-4 right-4 text-white text-2xl hover:opacity-70 transition-opacity"
+            className="absolute top-4 right-4 text-white hover:opacity-70 transition-opacity"
+          aria-label="Cerrar"
           >
-            ✕
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
           </button>
         </div>
       )}

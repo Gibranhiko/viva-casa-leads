@@ -17,16 +17,18 @@ export function StepEdad() {
 
   return (
     <StepLayout title="¿Cuántos años tienes?" onNext={handleNext}>
+      <label htmlFor="edad" className="sr-only">Edad</label>
       <input
+        id="edad"
         type="number"
         value={edad ?? ''}
-        onChange={(e) => setField('edad', parseInt(e.target.value) || null)}
+        onChange={(e) => { setField('edad', parseInt(e.target.value) || null); setError('') }}
         onKeyDown={(e) => e.key === 'Enter' && handleNext()}
         placeholder="Edad"
         autoFocus
         min={18}
         max={80}
-        className="w-full border-2 border-gray-200 focus:border-orange-500 rounded-xl px-4 py-3.5 text-lg outline-none transition-colors"
+        className={`w-full border-2 rounded-xl px-4 py-3.5 text-lg outline-none transition-colors ${error ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'}`}
       />
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </StepLayout>

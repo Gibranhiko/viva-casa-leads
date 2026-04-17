@@ -6,6 +6,7 @@ import { exportSellerToCSV } from '@/lib/exportCsv'
 import { MUNICIPIOS_MTY, MUNICIPIO_LABELS } from '@/lib/municipios'
 import { AdminMenu } from '@/components/admin/AdminMenu'
 import type { RedFlag } from '@/types/sellerLead'
+import { AlertTriangle, Star } from 'lucide-react'
 
 const STATUS_COLORS: Record<string, string> = {
   nuevo:       'bg-blue-100 text-blue-700',
@@ -46,12 +47,12 @@ function RedFlagsCell({ flags }: { flags: RedFlag[] }) {
       {warningCount > 0 && (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
           ${warningCount >= 3 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
-          ⚠ {warningCount}
+          <AlertTriangle size={11} /> {warningCount}
         </span>
       )}
       {cesion && (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-          ★ Cesión
+          <Star size={11} /> Cesión
         </span>
       )}
     </div>

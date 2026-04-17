@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { getImageUrl, deleteStorageFile } from '@/lib/storage'
+import { MessageCircle, Mail } from 'lucide-react'
+import { DetailSkeleton } from '@/components/admin/DetailSkeleton'
 import { updateLeadStatus, updateLead, deleteLead } from '@/lib/firestore'
 import type { LeadRow } from '@/hooks/useLeads'
 import { MUNICIPIOS_MTY } from '@/lib/municipios'
@@ -215,7 +217,7 @@ export function LeadDetailPage() {
     navigate('/admin')
   }
 
-  if (loading) return <div className="p-12 text-center text-gray-400">Cargando...</div>
+  if (loading) return <DetailSkeleton />
   if (!lead) return <div className="p-12 text-center text-gray-400">Lead no encontrado</div>
 
   const dom = (lead.domicilioActual as Record<string, string>) ?? {}
@@ -255,12 +257,12 @@ export function LeadDetailPage() {
           <div className="flex gap-2 flex-wrap">
             <a href={`https://wa.me/52${lead.whatsapp}`} target="_blank" rel="noreferrer"
               className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors">
-              <span>💬</span> Abrir WhatsApp
+              <MessageCircle size={16} /> Abrir WhatsApp
             </a>
             {lead.email && (
               <a href={`mailto:${lead.email}`}
                 className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors">
-                <span>✉️</span> Enviar email
+                <Mail size={16} /> Enviar email
               </a>
             )}
           </div>
@@ -272,8 +274,8 @@ export function LeadDetailPage() {
             <div className="flex flex-wrap gap-2">
               {STATUS_OPTIONS.map((s) => (
                 <button key={s} onClick={() => handleStatusChange(s)} disabled={updatingStatus || lead.status === s}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all capitalize ${lead.status === s ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 text-gray-600 hover:border-orange-300'}`}>
-                  {s.replace(/_/g, ' ')}
+                  className={`px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-medium border-2 transition-all ${lead.status === s ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 text-gray-600 hover:border-orange-300'}`}>
+                  {s.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase())}
                 </button>
               ))}
             </div>

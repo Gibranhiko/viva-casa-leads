@@ -1,6 +1,9 @@
 import { useSellerFormStore } from '@/store/useSellerFormStore'
 import { useNavigate } from 'react-router'
 import logo from '@/assets/viva-casa-logo.png'
+import { MessageCircle } from 'lucide-react'
+
+const WHATSAPP_NUMBER = '528110000000'
 
 export function SellerConfirmationPage() {
   const nombre = useSellerFormStore((s) => s.nombre)
@@ -8,7 +11,7 @@ export function SellerConfirmationPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
+      className="min-h-dvh flex flex-col items-center justify-center px-6 text-center"
       style={{
         background: 'linear-gradient(160deg, #7c2d00 0%, #c2410c 40%, #ea580c 70%, #fb923c 100%)',
       }}
@@ -28,9 +31,18 @@ export function SellerConfirmationPage() {
         Recibimos la información de tu propiedad. Un asesor de Viva Casa te contactará en menos de 24 horas.
       </p>
 
+      <a
+        href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola, acabo de registrar mi propiedad en Viva Casa y me gustaría saber más')}`}
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-8 rounded-2xl active:scale-95 transition-all mb-3"
+      >
+        <MessageCircle size={20} /> Contactar por WhatsApp
+      </a>
+
       <button
         onClick={() => navigate('/')}
-        className="bg-white text-orange-600 font-bold py-3 px-8 rounded-2xl active:scale-95 transition-transform"
+        className="bg-white/20 border-2 border-white/40 text-white font-bold py-3 px-8 rounded-2xl active:scale-95 transition-transform"
       >
         Volver al inicio
       </button>
