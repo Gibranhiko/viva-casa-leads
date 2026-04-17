@@ -455,30 +455,38 @@ export function SellerLeadDetailPage() {
         {/* Fotos */}
         {(photos.length > 0 || editing) && (
           <Section title={editing
-            ? pendingFiles ? `Fotos nuevas (${pendingFiles.length}/${MAX_PHOTOS})` : `Fotos actuales (${photos.length})`
+            ? pendingFiles ? `Fotos nuevas (${pendingFiles.length}/${MAX_PHOTOS})` : photos.length > 0 ? `Fotos actuales (${photos.length})` : 'Fotos'
             : `Fotos (${photos.length})`
           }>
             {editing ? (
               <>
-                {/* Previews: nuevas si el usuario seleccionó, o las actuales */}
-                <div className="grid grid-cols-2 gap-2">
-                  {(pendingPreviews.length > 0 ? pendingPreviews : photos.map((p) => p.url)).map((url, i) => (
-                    <div key={i} className="aspect-video rounded-xl overflow-hidden border border-gray-200">
-                      <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
+                {/* Grid de previews — solo si hay algo que mostrar */}
+                {(pendingPreviews.length > 0 || photos.length > 0) && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {(pendingPreviews.length > 0 ? pendingPreviews : photos.map((p) => p.url)).map((url, i) => (
+                      <div key={i} className="aspect-video rounded-xl overflow-hidden border border-gray-200">
+                        <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Placeholder cuando no hay fotos ni selección */}
+                {pendingPreviews.length === 0 && photos.length === 0 && (
+                  <p className="text-sm text-gray-400 text-center py-2">Sin fotos — selecciona hasta {MAX_PHOTOS}</p>
+                )}
                 {/* Botón para seleccionar todas las fotos de un jalón */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingPhotos}
                   className="w-full py-2.5 rounded-xl border-2 border-dashed border-gray-300 hover:border-orange-400 text-sm text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-50"
                 >
-                  {uploadingPhotos ? 'Subiendo fotos...' : pendingFiles ? 'Cambiar selección' : 'Seleccionar fotos nuevas'}
+                  {uploadingPhotos ? 'Subiendo fotos...' : pendingFiles ? 'Cambiar selección' : photos.length > 0 ? 'Reemplazar fotos' : 'Subir fotos'}
                 </button>
                 {pendingFiles && (
                   <p className="text-xs text-gray-400 text-center">
-                    Al guardar se subirán las fotos nuevas y se borrarán las anteriores
+                    {photos.length > 0
+                      ? 'Al guardar se subirán las fotos nuevas y se borrarán las anteriores'
+                      : 'Al guardar se subirán las fotos seleccionadas'}
                   </p>
                 )}
                 <input
