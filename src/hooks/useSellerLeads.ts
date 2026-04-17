@@ -36,8 +36,10 @@ export function useSellerLeads() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null)
+  const [initialized, setInitialized] = useState(false)
 
   const loadInitial = useCallback(async () => {
+    if (initialized) return
     setLoading(true)
     const q = query(collection(db, 'seller-leads'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE))
     const snap = await getDocs(q)
@@ -45,8 +47,9 @@ export function useSellerLeads() {
     setLeads(docs.map(docToSellerLead))
     setLastDoc(docs[docs.length - 1] ?? null)
     setHasMore(docs.length === PAGE_SIZE)
+    setInitialized(true)
     setLoading(false)
-  }, [])
+  }, [initialized])
 
   const loadMore = useCallback(async () => {
     if (!lastDoc || loadingMore) return

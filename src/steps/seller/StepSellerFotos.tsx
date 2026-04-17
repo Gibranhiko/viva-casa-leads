@@ -45,14 +45,13 @@ export function StepSellerFotos() {
     setUploading(true)
     setError('')
     try {
-      const paths: string[] = []
-      let photoIndex = 1
-      for (let i = 0; i < files.length; i++) {
-        if (files[i]) {
-          const path = await uploadSellerPhoto(files[i]!, sellerId, photoIndex++)
-          paths.push(path)
-        }
-      }
+      const entries = files
+        .map((file, i) => ({ file, i }))
+        .filter(({ file }) => file !== null)
+
+      const paths = await Promise.all(
+        entries.map(({ file }, idx) => uploadSellerPhoto(file!, sellerId, idx + 1))
+      )
       setField('fotoPaths', paths)
       nextStep()
     } catch {

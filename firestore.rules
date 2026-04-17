@@ -12,12 +12,14 @@ service cloud.firestore {
                    && request.resource.data.nombre.size() > 0
                    && request.resource.data.nombre.size() < 200
                    && request.resource.data.whatsapp is string
-                   && request.resource.data.whatsapp.size() == 10;
+                   && request.resource.data.whatsapp.matches('[0-9]{10}')
+                   && (!('comentarios' in request.resource.data)
+                       || request.resource.data.comentarios.size() < 500)
+                   && (!('infonavit' in request.resource.data)
+                       || request.resource.data.infonavit is map);
       allow read: if isAdmin();
-      allow update: if isAdmin()
-                   && request.resource.data.diff(resource.data).affectedKeys()
-                      .hasOnly(['status', 'updatedAt']);
-      allow delete: if false;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /seller-leads/{leadId} {
@@ -25,12 +27,14 @@ service cloud.firestore {
                    && request.resource.data.nombre.size() > 0
                    && request.resource.data.nombre.size() < 200
                    && request.resource.data.whatsapp is string
-                   && request.resource.data.whatsapp.size() == 10;
+                   && request.resource.data.whatsapp.matches('[0-9]{10}')
+                   && (!('comentarios' in request.resource.data)
+                       || request.resource.data.comentarios.size() < 500)
+                   && (!('fotoPaths' in request.resource.data)
+                       || request.resource.data.fotoPaths.size() <= 5);
       allow read: if isAdmin();
-      allow update: if isAdmin()
-                   && request.resource.data.diff(resource.data).affectedKeys()
-                      .hasOnly(['status', 'updatedAt']);
-      allow delete: if false;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /mail/{mailId} {

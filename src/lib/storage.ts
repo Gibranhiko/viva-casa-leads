@@ -1,9 +1,9 @@
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { storage } from './firebase'
 
-const MAX_SIZE_MB = 8
-const MAX_DIMENSION = 1280   // px en el lado más largo
-const JPEG_QUALITY = 0.82
+const MAX_SIZE_MB = 15       // validación pre-compresión — el canvas lo comprime a << 1 MB
+const MAX_DIMENSION = 800    // px en el lado más largo — suficiente para revisión en admin
+const JPEG_QUALITY = 0.70    // calidad JPEG — ~110 KB por foto promedio
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
 
 export function validateImageFile(file: File): string | null {
@@ -11,7 +11,7 @@ export function validateImageFile(file: File): string | null {
     return 'Solo se permiten imágenes (JPG, PNG, WEBP, HEIC)'
   }
   if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-    return `La imagen no puede pesar más de ${MAX_SIZE_MB} MB`
+    return `La imagen no puede pesar más de ${MAX_SIZE_MB} MB antes de compresión`
   }
   return null
 }
@@ -62,7 +62,20 @@ export async function uploadSellerPhoto(file: File, sellerId: string, index: num
   return path
 }
 
+
+// Cache en memoria para URLs de Storage (válidas por horas)
+const urlCache = new Map<string, string>()
+
+// Elimina un archivo de Storage (solo admin)
+export async function deleteStorageFile(path: string): Promise<void> {
+  urlCache.delete(path)
+  await deleteObject(ref(storage, path))
+}
+
 // Solo para uso en el panel admin (requiere auth)
 export async function getImageUrl(path: string): Promise<string> {
-  return getDownloadURL(ref(storage, path))
+  if (urlCache.has(path)) return urlCache.get(path)!
+  const url = await getDownloadURL(ref(storage, path))
+  urlCache.set(path, url)
+  return url
 }

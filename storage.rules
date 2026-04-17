@@ -2,17 +2,21 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     match /nss-images/{leadId}/{filename} {
-      allow write: if request.resource.size < 8 * 1024 * 1024
+      allow write: if request.resource.size < 1536 * 1024
                    && request.resource.contentType.matches('image/(jpeg|png|webp|heic|heif)');
       allow read: if request.auth != null
                  && request.auth.token.email == 'gibranhiko@gmail.com';
+      allow delete: if request.auth != null
+                   && request.auth.token.email == 'gibranhiko@gmail.com';
     }
 
     match /seller-photos/{sellerId}/{filename} {
-      allow write: if request.resource.size < 8 * 1024 * 1024
+      allow write: if request.resource.size < 1536 * 1024
                    && request.resource.contentType.matches('image/(jpeg|png|webp|heic|heif)');
       allow read: if request.auth != null
                  && request.auth.token.email == 'gibranhiko@gmail.com';
+      allow delete: if request.auth != null
+                   && request.auth.token.email == 'gibranhiko@gmail.com';
     }
   }
 }

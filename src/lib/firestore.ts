@@ -1,4 +1,4 @@
-import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp, updateDoc, deleteDoc } from 'firebase/firestore'
 import { db } from './firebase'
 import type { FormStore } from '@/store/useFormStore'
 import type { SellerFormStore } from '@/store/useSellerFormStore'
@@ -129,4 +129,40 @@ export async function updateSellerLeadStatus(id: string, status: string) {
     status,
     updatedAt: serverTimestamp(),
   })
+}
+
+export async function updateLead(id: string, data: Record<string, unknown>) {
+  await updateDoc(doc(db, 'leads', id), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export async function deleteLead(id: string) {
+  await deleteDoc(doc(db, 'leads', id))
+}
+
+export interface SellerLeadEditable {
+  nombre: string
+  whatsapp: string
+  email: string | null
+  municipio: string
+  fraccionamiento: string
+  calle: string
+  cp: string
+  precioPedido: number | null
+  urgencia: string | null
+  comentarios: string | null
+  fotoPaths: string[]
+}
+
+export async function updateSellerLead(id: string, data: SellerLeadEditable) {
+  await updateDoc(doc(db, 'seller-leads', id), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export async function deleteSellerLead(id: string) {
+  await deleteDoc(doc(db, 'seller-leads', id))
 }

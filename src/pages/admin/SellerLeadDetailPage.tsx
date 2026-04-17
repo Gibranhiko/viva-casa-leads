@@ -1,19 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { getImageUrl } from '@/lib/storage'
-import { updateSellerLeadStatus } from '@/lib/firestore'
+import { getImageUrl, uploadSellerPhoto, deleteStorageFile } from '@/lib/storage'
+import { updateSellerLeadStatus, updateSellerLead, deleteSellerLead } from '@/lib/firestore'
+import type { SellerLeadEditable } from '@/lib/firestore'
 import type { RedFlag } from '@/types/sellerLead'
+import { MUNICIPIOS_MTY } from '@/lib/municipios'
+import { ConfirmDeleteModal } from '@/components/admin/ConfirmDeleteModal'
+
+const MAX_PHOTOS = 5
 
 const STATUS_OPTIONS = ['nuevo', 'contactado', 'en_proceso', 'cerrado', 'descartado']
-const STATUS_COLORS: Record<string, string> = {
-  nuevo:       'bg-blue-100 text-blue-700',
-  contactado:  'bg-yellow-100 text-yellow-700',
-  en_proceso:  'bg-purple-100 text-purple-700',
-  cerrado:     'bg-green-100 text-green-700',
-  descartado:  'bg-gray-100 text-gray-500',
-}
+
+const URGENCIA_OPTIONS = [
+  { value: 'urgente',    label: 'Urgente' },
+  { value: '3_meses',   label: 'En 3 meses' },
+  { value: 'sin_prisa', label: 'Sin prisa' },
+]
 
 const RED_FLAG_META: Record<RedFlag, { label: string; description: string; color: 'red' | 'yellow' | 'gold' }> = {
   cfe_inactivo:                    { label: 'CFE inactivo',                 description: 'La luz no está activa. No está dada de alta o fue cortada.',                            color: 'yellow' },
@@ -41,15 +45,10 @@ function RedFlagBadge({ flag }: { flag: RedFlag }) {
     : meta.color === 'gold'
     ? 'bg-amber-50 border-amber-200 text-amber-700'
     : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-
   const icon = meta.color === 'gold' ? '★' : '⚠'
-
   return (
     <div className={`border rounded-xl p-3 ${colorClass}`}>
-      <p className="text-sm font-semibold flex items-center gap-1.5">
-        <span>{icon}</span>
-        {meta.label}
-      </p>
+      <p className="text-sm font-semibold flex items-center gap-1.5"><span>{icon}</span>{meta.label}</p>
       <p className="text-xs mt-1 opacity-75">{meta.description}</p>
     </div>
   )
@@ -71,6 +70,30 @@ function Field({ label, value }: { label: string; value: unknown }) {
     <div>
       <p className="text-xs text-gray-400">{label}</p>
       <p className="text-gray-900 font-medium">{display.replace(/_/g, ' ')}</p>
+    </div>
+  )
+}
+
+function EditField({
+  label,
+  value,
+  onChange,
+  type = 'text',
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  type?: string
+}) {
+  return (
+    <div>
+      <p className="text-xs text-gray-400 mb-1">{label}</p>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-orange-400"
+      />
     </div>
   )
 }
@@ -117,9 +140,35 @@ export function SellerLeadDetailPage() {
   const navigate = useNavigate()
   const [lead, setLead] = useState<SellerDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [photoUrls, setPhotoUrls] = useState<string[]>([])
+  const [photos, setPhotos] = useState<{ path: string; url: string }[]>([])
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [lightbox, setLightbox] = useState<string | null>(null)
+
+  // Edición
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editData, setEditData] = useState<SellerLeadEditable>({
+    nombre: '',
+    whatsapp: '',
+    email: null,
+    municipio: '',
+    fraccionamiento: '',
+    calle: '',
+    cp: '',
+    precioPedido: null,
+    urgencia: null,
+    comentarios: null,
+    fotoPaths: [],
+  })
+  // Fotos en edición — se seleccionan todas de una vez
+  const [pendingFiles, setPendingFiles] = useState<File[] | null>(null)
+  const [pendingPreviews, setPendingPreviews] = useState<string[]>([])
+  const [uploadingPhotos, setUploadingPhotos] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Borrar
+  const [showDelete, setShowDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -135,12 +184,14 @@ export function SellerLeadDetailPage() {
         } as unknown as SellerDetail
         setLead(detail)
 
-        // Cargar URLs de fotos
         if (detail.fotoPaths.length > 0) {
-          const urls = await Promise.all(
-            detail.fotoPaths.map((p) => getImageUrl(p).catch(() => ''))
+          const resolved = await Promise.all(
+            detail.fotoPaths.map(async (p) => {
+              const url = await getImageUrl(p).catch(() => '')
+              return url ? { path: p, url } : null
+            })
           )
-          setPhotoUrls(urls.filter(Boolean))
+          setPhotos(resolved.filter(Boolean) as { path: string; url: string }[])
         }
       }
       setLoading(false)
@@ -155,145 +206,384 @@ export function SellerLeadDetailPage() {
     setUpdatingStatus(false)
   }
 
+  const cancelEdit = useCallback(() => {
+    pendingPreviews.forEach((url) => URL.revokeObjectURL(url))
+    setPendingFiles(null)
+    setPendingPreviews([])
+    setEditing(false)
+  }, [pendingPreviews])
+
+  const startEdit = () => {
+    if (!lead) return
+    setEditData({
+      nombre: lead.nombre,
+      whatsapp: lead.whatsapp,
+      email: lead.email,
+      municipio: lead.municipio,
+      fraccionamiento: lead.fraccionamiento ?? '',
+      calle: lead.calle ?? '',
+      cp: lead.cp ?? '',
+      precioPedido: lead.precioPedido,
+      urgencia: lead.urgencia,
+      comentarios: lead.comentarios,
+      fotoPaths: lead.fotoPaths,
+    })
+    setPendingFiles(null)
+    setPendingPreviews([])
+    setEditing(true)
+  }
+
+  const handleSelectPhotos = (files: FileList) => {
+    const selected = Array.from(files).slice(0, MAX_PHOTOS)
+    // Limpiar previews anteriores
+    pendingPreviews.forEach((url) => URL.revokeObjectURL(url))
+    const previews = selected.map((f) => URL.createObjectURL(f))
+    setPendingFiles(selected)
+    setPendingPreviews(previews)
+  }
+
+  const handleSave = async () => {
+    if (!id || !lead) return
+    setSaving(true)
+    try {
+      let newFotoPaths = lead.fotoPaths
+
+      if (pendingFiles !== null) {
+        setUploadingPhotos(true)
+        // Borrar primero los paths viejos, luego subir (evita borrar lo recién subido si comparten path)
+        const oldPaths = lead.fotoPaths
+        await Promise.allSettled(oldPaths.map((p) => deleteStorageFile(p)))
+        // Subir nuevas fotos a slots 1..N
+        const uploadedPaths = await Promise.all(
+          pendingFiles.map((file, i) => uploadSellerPhoto(file, id, i + 1))
+        )
+        // Actualizar URLs en el estado local
+        const resolved = await Promise.all(
+          uploadedPaths.map(async (p) => {
+            const url = await getImageUrl(p).catch(() => '')
+            return url ? { path: p, url } : null
+          })
+        )
+        setPhotos(resolved.filter(Boolean) as { path: string; url: string }[])
+        newFotoPaths = uploadedPaths
+        pendingPreviews.forEach((url) => URL.revokeObjectURL(url))
+        setPendingFiles(null)
+        setPendingPreviews([])
+        setUploadingPhotos(false)
+      }
+
+      const dataToSave = { ...editData, fotoPaths: newFotoPaths }
+      await updateSellerLead(id, dataToSave)
+      setLead({ ...lead, ...dataToSave })
+    } finally {
+      setSaving(false)
+      setEditing(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!id || !lead) return
+    setDeleting(true)
+    if (lead.fotoPaths.length > 0) {
+      await Promise.allSettled(lead.fotoPaths.map((p) => deleteStorageFile(p)))
+    }
+    await deleteSellerLead(id)
+    navigate('/admin/vendedores')
+  }
+
   if (loading) return <div className="p-12 text-center text-gray-400">Cargando...</div>
   if (!lead) return <div className="p-12 text-center text-gray-400">Lead no encontrado</div>
 
-  const warningFlags = lead.redFlags.filter((f) => f !== 'cesion_infonavit_interes')
+  const warningFlags = lead.redFlags.filter((f: RedFlag) => f !== 'cesion_infonavit_interes')
   const cesionFlag = lead.redFlags.includes('cesion_infonavit_interes')
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate('/admin/vendedores')} className="text-gray-400 hover:text-gray-600 transition-colors">
-          ← Volver
-        </button>
-        <h1 className="font-bold text-gray-900 flex-1">{lead.nombre}</h1>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[lead.status] ?? 'bg-gray-100 text-gray-500'}`}>
-          {lead.status.replace(/_/g, ' ')}
-        </span>
+        {editing ? (
+          <>
+            <button
+              onClick={cancelEdit}
+              disabled={saving}
+              className="text-gray-400 hover:text-gray-600 transition-colors text-sm"
+            >
+              Cancelar
+            </button>
+            <h1 className="font-bold text-gray-900 flex-1 truncate">{editData.nombre || 'Sin nombre'}</h1>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-1.5 rounded-xl transition-colors disabled:opacity-50"
+            >
+              {uploadingPhotos ? 'Subiendo fotos...' : saving ? 'Guardando...' : 'Guardar'}
+            </button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => navigate('/admin/vendedores')} className="text-gray-400 hover:text-gray-600 transition-colors">
+              ← Volver
+            </button>
+            <h1 className="font-bold text-gray-900 flex-1 truncate">{lead.nombre}</h1>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={startEdit}
+                className="text-gray-400 hover:text-gray-700 transition-colors text-sm font-medium"
+              >
+                Editar
+              </button>
+              <button
+                onClick={() => setShowDelete(true)}
+                className="text-red-400 hover:text-red-600 transition-colors text-sm font-medium"
+              >
+                Eliminar
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-4">
 
         {/* Acciones rápidas */}
-        <div className="flex gap-2 flex-wrap">
-          <a
-            href={`https://wa.me/52${lead.whatsapp}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
-          >
-            <span>💬</span> Abrir WhatsApp
-          </a>
-          {lead.email && (
+        {!editing && (
+          <div className="flex gap-2 flex-wrap">
             <a
-              href={`mailto:${lead.email}`}
-              className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
+              href={`https://wa.me/52${lead.whatsapp}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
             >
-              <span>✉️</span> Enviar email
+              <span>💬</span> Abrir WhatsApp
             </a>
-          )}
-        </div>
+            {lead.email && (
+              <a
+                href={`mailto:${lead.email}`}
+                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
+              >
+                <span>✉️</span> Enviar email
+              </a>
+            )}
+          </div>
+        )}
 
         {/* Red flags */}
-        {lead.redFlags.length > 0 && (
+        {!editing && lead.redFlags.length > 0 && (
           <Section title={`Alertas (${warningFlags.length} advertencia${warningFlags.length !== 1 ? 's' : ''}${cesionFlag ? ' · 1 oportunidad' : ''})`}>
-            {/* Oportunidad primero */}
             {cesionFlag && <RedFlagBadge flag="cesion_infonavit_interes" />}
             {warningFlags.map((f) => <RedFlagBadge key={f} flag={f} />)}
           </Section>
         )}
 
         {/* Status */}
-        <Section title="Status del lead">
-          <div className="flex flex-wrap gap-2">
-            {STATUS_OPTIONS.map((s) => (
-              <button
-                key={s}
-                onClick={() => handleStatusChange(s)}
-                disabled={updatingStatus || lead.status === s}
-                className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all capitalize
-                  ${lead.status === s
-                    ? 'border-orange-500 bg-orange-50 text-orange-700'
-                    : 'border-gray-200 text-gray-600 hover:border-orange-300'
-                  }`}
-              >
-                {s.replace(/_/g, ' ')}
-              </button>
-            ))}
-          </div>
-        </Section>
-
-        {/* Contacto */}
-        <Section title="Contacto">
-          <Field label="Nombre" value={lead.nombre} />
-          <Field label="WhatsApp" value={lead.whatsapp} />
-          <Field label="Email" value={lead.email} />
-          <Field label="Fecha de registro" value={lead.createdAt.toLocaleString('es-MX')} />
-        </Section>
-
-        {/* Propiedad */}
-        <Section title="Propiedad">
-          <Field label="Municipio" value={lead.municipio} />
-          <Field label="Fraccionamiento / Colonia" value={lead.fraccionamiento} />
-          <Field label="Calle" value={lead.calle} />
-          <Field label="Código postal" value={lead.cp} />
-          <Field label="Tipo de propiedad" value={lead.tipoPropiedad} />
-          <Field label="Recámaras" value={lead.recamaras} />
-          <Field label="Baños" value={lead.banos} />
-          <Field label="M² de construcción" value={lead.m2Construccion} />
-          <Field label="Antigüedad" value={lead.antiguedad} />
-          <Field label="Condición física" value={lead.condicionFisica} />
-        </Section>
-
-        {/* Fotos */}
-        {photoUrls.length > 0 && (
-          <Section title={`Fotos (${photoUrls.length})`}>
-            <div className="grid grid-cols-2 gap-2">
-              {photoUrls.map((url, i) => (
+        {!editing && (
+          <Section title="Status del lead">
+            <div className="flex flex-wrap gap-2">
+              {STATUS_OPTIONS.map((s) => (
                 <button
-                  key={i}
-                  onClick={() => setLightbox(url)}
-                  className="aspect-video overflow-hidden rounded-xl border border-gray-200 hover:opacity-90 transition-opacity"
+                  key={s}
+                  onClick={() => handleStatusChange(s)}
+                  disabled={updatingStatus || lead.status === s}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all capitalize
+                    ${lead.status === s
+                      ? 'border-orange-500 bg-orange-50 text-orange-700'
+                      : 'border-gray-200 text-gray-600 hover:border-orange-300'
+                    }`}
                 >
-                  <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                  {s.replace(/_/g, ' ')}
                 </button>
               ))}
             </div>
           </Section>
         )}
 
-        {/* Situación */}
-        <Section title="Situación de la propiedad">
-          <Field label="Ocupación" value={lead.ocupacion} />
-          <Field label="Luz (CFE)" value={lead.luzEstado} />
-          <Field label="Agua" value={lead.aguaEstado} />
-          <Field label="Gas" value={lead.gasEstado} />
-          <Field label="Predial" value={lead.predialAlCorriente} />
-          <Field label="Cuotas de condominio" value={lead.cuotasCondominio} />
+        {/* Contacto */}
+        <Section title="Contacto">
+          {editing ? (
+            <>
+              <EditField label="Nombre" value={editData.nombre} onChange={(v) => setEditData({ ...editData, nombre: v })} />
+              <EditField label="WhatsApp (10 dígitos)" value={editData.whatsapp} onChange={(v) => setEditData({ ...editData, whatsapp: v })} type="tel" />
+              <EditField label="Email" value={editData.email ?? ''} onChange={(v) => setEditData({ ...editData, email: v || null })} type="email" />
+            </>
+          ) : (
+            <>
+              <Field label="Nombre" value={lead.nombre} />
+              <Field label="WhatsApp" value={lead.whatsapp} />
+              <Field label="Email" value={lead.email} />
+              <Field label="Fecha de registro" value={lead.createdAt.toLocaleString('es-MX')} />
+            </>
+          )}
         </Section>
 
-        {/* Propietario */}
-        <Section title="Propietario">
-          <Field label="Estado civil" value={lead.estadoCivil} />
-          <Field label="Escrituras" value={lead.tieneEscrituras} />
-          <Field label="Número de dueños" value={lead.numeroDuenos} />
-          <Field label="Disponibilidad de dueños" value={lead.duenosDisponibles} />
+        {/* Propiedad */}
+        <Section title="Propiedad">
+          {editing ? (
+            <>
+              <div>
+                <p className="text-xs text-gray-400 mb-1">Municipio</p>
+                <select
+                  value={editData.municipio}
+                  onChange={(e) => setEditData({ ...editData, municipio: e.target.value })}
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-orange-400"
+                >
+                  <option value="">Seleccionar...</option>
+                  {MUNICIPIOS_MTY.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
+              </div>
+              <EditField label="Fraccionamiento / Colonia" value={editData.fraccionamiento} onChange={(v) => setEditData({ ...editData, fraccionamiento: v })} />
+              <EditField label="Calle" value={editData.calle} onChange={(v) => setEditData({ ...editData, calle: v })} />
+              <EditField label="Código postal" value={editData.cp} onChange={(v) => setEditData({ ...editData, cp: v })} />
+            </>
+          ) : (
+            <>
+              <Field label="Municipio" value={lead.municipio} />
+              <Field label="Fraccionamiento / Colonia" value={lead.fraccionamiento} />
+              <Field label="Calle" value={lead.calle} />
+              <Field label="Código postal" value={lead.cp} />
+              <Field label="Tipo de propiedad" value={lead.tipoPropiedad} />
+              <Field label="Recámaras" value={lead.recamaras} />
+              <Field label="Baños" value={lead.banos} />
+              <Field label="M² de construcción" value={lead.m2Construccion} />
+              <Field label="Antigüedad" value={lead.antiguedad} />
+              <Field label="Condición física" value={lead.condicionFisica} />
+            </>
+          )}
         </Section>
 
-        {/* Crédito */}
-        <Section title="Crédito / Hipoteca">
-          <Field label="Situación de crédito" value={lead.situacionCredito} />
-          <Field label="Interés en cesión INFONAVIT" value={lead.cesionInfonvitInteres ? 'Sí' : lead.cesionInfonvitInteres === false ? 'No' : null} />
-          <Field label="Cancelación INFONAVIT registrada" value={lead.cancelacionInfonvitRegistrada} />
-        </Section>
+        {/* Fotos */}
+        {(photos.length > 0 || editing) && (
+          <Section title={editing
+            ? pendingFiles ? `Fotos nuevas (${pendingFiles.length}/${MAX_PHOTOS})` : `Fotos actuales (${photos.length})`
+            : `Fotos (${photos.length})`
+          }>
+            {editing ? (
+              <>
+                {/* Previews: nuevas si el usuario seleccionó, o las actuales */}
+                <div className="grid grid-cols-2 gap-2">
+                  {(pendingPreviews.length > 0 ? pendingPreviews : photos.map((p) => p.url)).map((url, i) => (
+                    <div key={i} className="aspect-video rounded-xl overflow-hidden border border-gray-200">
+                      <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+                {/* Botón para seleccionar todas las fotos de un jalón */}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingPhotos}
+                  className="w-full py-2.5 rounded-xl border-2 border-dashed border-gray-300 hover:border-orange-400 text-sm text-gray-500 hover:text-orange-500 transition-colors disabled:opacity-50"
+                >
+                  {uploadingPhotos ? 'Subiendo fotos...' : pendingFiles ? 'Cambiar selección' : 'Seleccionar fotos nuevas'}
+                </button>
+                {pendingFiles && (
+                  <p className="text-xs text-gray-400 text-center">
+                    Al guardar se subirán las fotos nuevas y se borrarán las anteriores
+                  </p>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) handleSelectPhotos(e.target.files)
+                    e.target.value = ''
+                  }}
+                />
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {photos.map((photo, i) => (
+                  <button
+                    key={photo.path}
+                    onClick={() => setLightbox(photo.url)}
+                    className="aspect-video overflow-hidden rounded-xl border border-gray-200 hover:opacity-90 transition-opacity"
+                  >
+                    <img src={photo.url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </Section>
+        )}
+
+        {/* Situación — solo en vista */}
+        {!editing && (
+          <Section title="Situación de la propiedad">
+            <Field label="Ocupación" value={lead.ocupacion} />
+            <Field label="Luz (CFE)" value={lead.luzEstado} />
+            <Field label="Agua" value={lead.aguaEstado} />
+            <Field label="Gas" value={lead.gasEstado} />
+            <Field label="Predial" value={lead.predialAlCorriente} />
+            <Field label="Cuotas de condominio" value={lead.cuotasCondominio} />
+          </Section>
+        )}
+
+        {/* Propietario — solo en vista */}
+        {!editing && (
+          <Section title="Propietario">
+            <Field label="Estado civil" value={lead.estadoCivil} />
+            <Field label="Escrituras" value={lead.tieneEscrituras} />
+            <Field label="Número de dueños" value={lead.numeroDuenos} />
+            <Field label="Disponibilidad de dueños" value={lead.duenosDisponibles} />
+          </Section>
+        )}
+
+        {/* Crédito — solo en vista */}
+        {!editing && (
+          <Section title="Crédito / Hipoteca">
+            <Field label="Situación de crédito" value={lead.situacionCredito} />
+            <Field label="Interés en cesión INFONAVIT" value={lead.cesionInfonvitInteres ? 'Sí' : lead.cesionInfonvitInteres === false ? 'No' : null} />
+            <Field label="Cancelación INFONAVIT registrada" value={lead.cancelacionInfonvitRegistrada} />
+          </Section>
+        )}
 
         {/* Expectativas */}
         <Section title="Expectativas de venta">
-          <Field label="Precio pedido (MXN)" value={lead.precioPedido ? `$${lead.precioPedido.toLocaleString('es-MX')}` : null} />
-          <Field label="Urgencia" value={lead.urgencia} />
-          <Field label="Comentarios" value={lead.comentarios} />
+          {editing ? (
+            <>
+              <div>
+                <p className="text-xs text-gray-400 mb-1">Precio pedido (MXN)</p>
+                <input
+                  type="number"
+                  value={editData.precioPedido ?? ''}
+                  onChange={(e) => setEditData({ ...editData, precioPedido: e.target.value ? Number(e.target.value) : null })}
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-orange-400"
+                  placeholder="Ej. 1500000"
+                />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 mb-1">Urgencia</p>
+                <select
+                  value={editData.urgencia ?? ''}
+                  onChange={(e) => setEditData({ ...editData, urgencia: e.target.value || null })}
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-orange-400"
+                >
+                  <option value="">Sin especificar</option>
+                  {URGENCIA_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 mb-1">Comentarios</p>
+                <textarea
+                  value={editData.comentarios ?? ''}
+                  onChange={(e) => setEditData({ ...editData, comentarios: e.target.value || null })}
+                  rows={3}
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-orange-400 resize-none"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <Field label="Precio pedido (MXN)" value={lead.precioPedido ? `$${lead.precioPedido.toLocaleString('es-MX')}` : null} />
+              <Field label="Urgencia" value={lead.urgencia} />
+              <Field label="Comentarios" value={lead.comentarios} />
+            </>
+          )}
         </Section>
       </div>
 
@@ -316,6 +606,15 @@ export function SellerLeadDetailPage() {
             ✕
           </button>
         </div>
+      )}
+
+      {showDelete && (
+        <ConfirmDeleteModal
+          name={lead.nombre}
+          onConfirm={handleDelete}
+          onCancel={() => setShowDelete(false)}
+          loading={deleting}
+        />
       )}
     </div>
   )
