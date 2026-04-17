@@ -18,7 +18,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Add a visible `<label>` above each input, or use `aria-label` / `aria-labelledby` at minimum.
 - **Effort:** Medium (touches every step file)
 - **AC:** Each input has an associated label. Running axe DevTools on any step reports zero label violations.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -28,7 +28,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Install `lucide-react` (already common in Tailwind projects) and replace each emoji with the equivalent SVG icon component. Suggested: `Home`, `Tag`, `MessageCircle`, `Mail` from Lucide.
 - **Effort:** Small
 - **AC:** No emoji characters used as UI icons anywhere in the app. Icons scale and color correctly in all modern browsers.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -38,7 +38,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Replace `min-h-screen` with `min-h-dvh` where the intent is truly full-viewport. Tailwind supports it out of the box.
 - **Effort:** Small
 - **AC:** Welcome screen and confirmation screen display without clipping on iOS Safari at default zoom. Continue button is always fully visible above the keyboard/browser chrome.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -48,7 +48,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Add `touch-action: manipulation` to the global `button` selector in the stylesheet, or apply the Tailwind utility `[touch-action:manipulation]` on the primary CTA button.
 - **Effort:** Trivial
 - **AC:** Tapping the Continue button on an Android device feels instantaneous with no perceptible delay.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -65,7 +65,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
   - Busqueda: zonas + tipoInmueble + caracteristicas
 - **Effort:** Large (requires store refactor + new combined step components)
 - **AC:** A new user completing the buyer flow sees no more than 12 total step indicators. Internal testing shows completion rate improves.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -75,7 +75,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Either (a) hide the numeric indicator and show only the progress bar, or (b) group steps into sections and show section progress like "Sección 1 de 4 · Contacto". Option (b) is preferred.
 - **Effort:** Small
 - **AC:** No step screen shows a denominator greater than 6. User cannot easily determine total step count from the UI.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -85,7 +85,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Ensure SellerFormShell renders the same header with back button and progress bar as FormShell. Confirm browser back button steps backward through form instead of navigating away.
 - **Effort:** Small
 - **AC:** Tapping back on step 5 of the seller form takes the user to step 4 with their previous answer preserved. Tapping browser back does the same.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -95,7 +95,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Add `min-h-[44px]` and increase horizontal padding on status buttons. Also fix display of underscore-separated values — "en_proceso" should read "En proceso" with proper capitalization, not just `.replace(/_/g, ' ')`.
 - **Effort:** Small
 - **AC:** Status buttons are at least 44px tall. Text is properly capitalized. No mis-taps reported on a 375px wide device.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -107,7 +107,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** When `error` is set, add `border-red-500` to the input border class. Consider a helper prop on StepLayout or pass `hasError` down to inputs.
 - **Effort:** Small
 - **AC:** On any step with a validation error, the input border turns red immediately. The error clears and border returns to normal when the user starts correcting.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -117,7 +117,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Remove the link from StepWelcome. The admin route `/admin/login` still works if someone knows the URL. Optionally add a subtle footer link only on the `/admin/login` page itself for discoverability by team members.
 - **Effort:** Trivial
 - **AC:** No admin link visible on the public welcome screen. Navigating directly to `/admin/login` still works.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -127,7 +127,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Replace with an SVG X icon (Lucide `X` component, or inline SVG). Ensure it has an `aria-label="Cerrar"` attribute.
 - **Effort:** Trivial
 - **AC:** Lightbox close button renders as a clean vector icon in Chrome, Safari, and Firefox. Has accessible label.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -137,7 +137,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Add a WhatsApp button below the confirmation message that opens `https://wa.me/52XXXXXXXXXX` with a pre-filled message like "Hola, acabo de llenar el formulario de Viva Casa". Phone number should come from an environment variable or config constant.
 - **Effort:** Small
 - **AC:** Confirmation screen shows a green WhatsApp button. Tapping it opens WhatsApp with the pre-filled message. Same fix should be applied to `SellerConfirmationPage.tsx`.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -147,7 +147,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Build a simple skeleton component using `animate-pulse` Tailwind classes that mimics the section layout (header bar, two info blocks, a button row). Show it while `loading === true`.
 - **Effort:** Small
 - **AC:** Navigating to any lead detail page shows an animated skeleton for up to 1 second before content appears. No "Cargando..." text visible.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -160,7 +160,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Add the Google Fonts import to `index.html`. Apply `font-cinzel` to `h1`, `h2` elements in the welcome and confirmation screens at minimum. Do not apply to form step titles — keep those plain and fast.
 - **Effort:** Small
 - **AC:** Welcome screen and confirmation page h1 renders in Cinzel. Body text and form steps remain in system sans-serif for readability and performance.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -170,7 +170,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Pass `subtitle` to StepLayout on the first 3 steps. Suggested copy: StepNombre → "Solo toma 3 minutos", StepWhatsapp → "Te contactaremos por aquí para avisarte cuando tengamos propiedades disponibles", StepEmail → "Opcional — solo para enviarte información adicional".
 - **Effort:** Trivial
 - **AC:** Steps 1–3 of the buyer form show a subtitle line. The subtitle does not appear on financial or property steps where it would feel out of place.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -180,7 +180,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Replace the plain paragraph with a proper drop zone area: dashed border container, camera SVG icon centered, and the label text below it. Keep the existing hidden file input wired to this area on click.
 - **Effort:** Small
 - **AC:** When MultiPhotoPicker has no photos, it renders a visually distinct upload zone with an icon. Tapping anywhere on the zone opens the file picker. Existing photo grid and replace behavior unchanged.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 
@@ -190,7 +190,7 @@ Each item has a priority, effort estimate, and acceptance criteria. Work top-dow
 - **Fix:** Reduce to `x: 20` for both initial and exit values. Keep the 0.22s duration unchanged.
 - **Effort:** Trivial
 - **AC:** Stepping through the form feels smooth and subtle. Animation is perceptible but does not distract from the input field.
-- [ ] Done — ___________
+- [x] Done — 2026-04-17 — ___________
 
 ---
 

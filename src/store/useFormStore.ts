@@ -8,14 +8,14 @@ import type {
 
 export type StepId =
   | 'welcome'
-  | 'nombre' | 'whatsapp' | 'email'
-  | 'edad' | 'estadoCivil' | 'dependientes' | 'domicilio'
+  | 'contacto' | 'email'
+  | 'perfil' | 'domicilio'
   | 'situacionLaboral' | 'empresa' | 'ingreso'
   | 'tipoCredito'
-  | 'nss' | 'precalificacion' | 'participantes'
+  | 'nss' | 'precalificacion'
   | 'banco' | 'enganche'
   | 'presupuesto'
-  | 'usoInmueble' | 'zonas' | 'tipoInmueble' | 'caracteristicas' | 'comentarios'
+  | 'usoInmueble' | 'busqueda' | 'caracteristicas' | 'comentarios'
 
 interface FormData {
   leadId: string
@@ -80,8 +80,8 @@ const INFONAVIT_TYPES: TipoCredito[] = [
 
 function buildSteps(data: FormData): StepId[] {
   const steps: StepId[] = [
-    'welcome', 'nombre', 'whatsapp', 'email',
-    'edad', 'estadoCivil', 'dependientes', 'domicilio',
+    'welcome', 'contacto', 'email',
+    'perfil', 'domicilio',
     'situacionLaboral',
   ]
 
@@ -99,7 +99,7 @@ function buildSteps(data: FormData): StepId[] {
     steps.push('presupuesto')
   }
 
-  steps.push('usoInmueble', 'zonas', 'tipoInmueble', 'caracteristicas', 'comentarios')
+  steps.push('usoInmueble', 'busqueda', 'caracteristicas', 'comentarios')
 
   return steps
 }

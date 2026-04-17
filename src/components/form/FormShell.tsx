@@ -4,12 +4,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 
 // Steps
 import { StepWelcome } from '@/steps/StepWelcome'
-import { StepNombre } from '@/steps/StepNombre'
-import { StepWhatsapp } from '@/steps/StepWhatsapp'
+import { StepContacto } from '@/steps/StepContacto'
 import { StepEmail } from '@/steps/StepEmail'
-import { StepEdad } from '@/steps/StepEdad'
-import { StepEstadoCivil } from '@/steps/StepEstadoCivil'
-import { StepDependientes } from '@/steps/StepDependientes'
+import { StepPerfil } from '@/steps/StepPerfil'
 import { StepDomicilio } from '@/steps/StepDomicilio'
 import { StepSituacionLaboral } from '@/steps/StepSituacionLaboral'
 import { StepEmpresa } from '@/steps/StepEmpresa'
@@ -17,25 +14,20 @@ import { StepIngreso } from '@/steps/StepIngreso'
 import { StepTipoCredito } from '@/steps/StepTipoCredito'
 import { StepNSS } from '@/steps/StepNSS'
 import { StepPrecalificacion } from '@/steps/StepPrecalificacion'
-import { StepParticipantes } from '@/steps/StepParticipantes'
 import { StepBanco } from '@/steps/StepBanco'
 import { StepEnganche } from '@/steps/StepEnganche'
 import { StepPresupuesto } from '@/steps/StepPresupuesto'
 import { StepUsoInmueble } from '@/steps/StepUsoInmueble'
-import { StepZonas } from '@/steps/StepZonas'
-import { StepTipoInmueble } from '@/steps/StepTipoInmueble'
+import { StepBusqueda } from '@/steps/StepBusqueda'
 import { StepCaracteristicas } from '@/steps/StepCaracteristicas'
 import { StepComentarios } from '@/steps/StepComentarios'
 import type { StepId } from '@/store/useFormStore'
 
 const STEP_COMPONENTS: Record<StepId, React.ComponentType> = {
   welcome: StepWelcome,
-  nombre: StepNombre,
-  whatsapp: StepWhatsapp,
+  contacto: StepContacto,
   email: StepEmail,
-  edad: StepEdad,
-  estadoCivil: StepEstadoCivil,
-  dependientes: StepDependientes,
+  perfil: StepPerfil,
   domicilio: StepDomicilio,
   situacionLaboral: StepSituacionLaboral,
   empresa: StepEmpresa,
@@ -43,13 +35,11 @@ const STEP_COMPONENTS: Record<StepId, React.ComponentType> = {
   tipoCredito: StepTipoCredito,
   nss: StepNSS,
   precalificacion: StepPrecalificacion,
-  participantes: StepParticipantes,
   banco: StepBanco,
   enganche: StepEnganche,
   presupuesto: StepPresupuesto,
   usoInmueble: StepUsoInmueble,
-  zonas: StepZonas,
-  tipoInmueble: StepTipoInmueble,
+  busqueda: StepBusqueda,
   caracteristicas: StepCaracteristicas,
   comentarios: StepComentarios,
 }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import logo from '@/assets/viva-casa-logo.png'
 import { MessageCircle } from 'lucide-react'
 
-const WHATSAPP_NUMBER = '528110000000'
+const WHATSAPP_NUMBER = '528186018847'
 
 export function ConfirmationPage() {
   const nombre = useFormStore((s) => s.nombre)
@@ -24,7 +24,7 @@ export function ConfirmationPage() {
         </svg>
       </div>
 
-      <h1 className="text-2xl font-bold text-white mb-2">
+      <h1 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
         ¡Gracias{nombre ? `, ${nombre}` : ''}!
       </h1>
       <p className="text-orange-100 max-w-xs mb-8">
