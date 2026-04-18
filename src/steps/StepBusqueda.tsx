@@ -53,13 +53,13 @@ export function StepBusqueda() {
     <StepLayout title="¿Qué estás buscando?" subtitle="Puedes elegir varias zonas" onNext={handleNext}>
       <div className="flex flex-col gap-6">
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Zonas de interés</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">Zonas de interés</p>
           <MultiChip options={ZONAS} selected={zonasInteres} onToggle={handleToggleZona} />
           {errors.zonas && <p className="text-red-500 text-sm mt-1">{errors.zonas}</p>}
         </div>
 
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Tipo de propiedad</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">Tipo de propiedad</p>
           <StepCard
             columns={2}
             options={TIPO_OPTIONS}

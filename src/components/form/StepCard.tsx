@@ -1,8 +1,10 @@
+import type { ReactNode } from 'react'
+
 interface Option {
   value: string
   label: string
   description?: string
-  icon?: string
+  icon?: ReactNode
 }
 
 interface StepCardProps {
@@ -26,7 +28,7 @@ export function StepCard({ options, selected, onSelect, columns }: StepCardProps
             }`}
         >
           <div className="flex items-center gap-3">
-            {opt.icon && <span className="text-2xl">{opt.icon}</span>}
+            {opt.icon && <span className="text-orange-400 flex-shrink-0">{opt.icon}</span>}
             <div>
               <p className={`font-semibold ${selected === opt.value ? 'text-orange-600' : 'text-gray-900'}`}>
                 {opt.label}

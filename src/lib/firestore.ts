@@ -34,6 +34,7 @@ export async function submitLead(store: FormStore) {
     ingresoMensual: store.ingresoMensual,
 
     tipoCredito: store.tipoCredito,
+    tipoCreditoDetalle: store.tipoCreditoDetalle,
 
     usoInmueble: store.usoInmueble,
     zonasInteres: store.zonasInteres,

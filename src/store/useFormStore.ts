@@ -41,6 +41,7 @@ interface FormData {
 
   // Crédito
   tipoCredito: TipoCredito | null
+  tipoCreditoDetalle: string | null
 
   // INFONAVIT
   nss: string | null
@@ -118,7 +119,7 @@ function getInitialState(): FormData {
     edad: null, estadoCivil: null, dependientes: null,
     domicilioMunicipio: '', domicilioFraccionamiento: '', domicilioCalle: '', domicilioCP: '',
     situacionLaboral: null, empresa: null, ingresoMensual: null,
-    tipoCredito: null,
+    tipoCredito: null, tipoCreditoDetalle: null,
     nss: null, nssImageUrl: null, precalificacion: null, participantes: null,
     bancoPreferencia: null, tieneEnganche: null,
     presupuesto: null,

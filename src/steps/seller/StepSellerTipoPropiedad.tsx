@@ -41,7 +41,7 @@ export function StepSellerTipoPropiedad() {
         <StepCard columns={2} options={TIPO_OPTIONS} selected={tipoPropiedad} onSelect={handleTipo} />
         {showCuotas && (
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">¿Estás al corriente con las cuotas de mantenimiento?</p>
+            <p className="text-sm font-semibold text-orange-500 mb-2">¿Estás al corriente con las cuotas de mantenimiento?</p>
             <StepCard options={CUOTAS_OPTIONS} selected={cuotasCondominio} onSelect={handleCuotas} />
           </div>
         )}

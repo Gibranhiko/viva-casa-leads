@@ -37,11 +37,11 @@ export function StepSellerRecamarasBanos() {
     <StepLayout title="Recámaras y baños" onNext={showNext ? handleNext : undefined} hideNext={!showNext}>
       <div className="flex flex-col gap-6">
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿Cuántas recámaras tiene?</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">¿Cuántas recámaras tiene?</p>
           <StepCard columns={2} options={RECAMARAS} selected={recamaras} onSelect={handleRecamaras} />
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿Cuántos baños?</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">¿Cuántos baños?</p>
           <StepCard columns={2} options={BANOS} selected={banos} onSelect={handleBanos} />
         </div>
       </div>

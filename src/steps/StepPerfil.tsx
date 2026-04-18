@@ -34,7 +34,7 @@ export function StepPerfil() {
     <StepLayout title="Tu perfil" onNext={handleNext}>
       <div className="flex flex-col gap-6">
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Estado civil</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">Estado civil</p>
           <StepCard
             columns={2}
             options={ESTADO_CIVIL_OPTIONS}
@@ -45,7 +45,7 @@ export function StepPerfil() {
         </div>
 
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Dependientes económicos</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">Dependientes económicos</p>
           <StepCard
             columns={2}
             options={DEPENDIENTES_OPTIONS}

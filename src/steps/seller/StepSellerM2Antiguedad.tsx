@@ -36,11 +36,11 @@ export function StepSellerM2Antiguedad() {
     <StepLayout title="Tamaño y antigüedad" onNext={showNext ? nextStep : undefined} hideNext={!showNext}>
       <div className="flex flex-col gap-6">
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿Cuántos m² de construcción tiene?</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">¿Cuántos m² de construcción tiene?</p>
           <StepCard columns={2} options={M2_OPTIONS} selected={m2Construccion} onSelect={handleM2} />
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿Qué antigüedad tiene?</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">¿Qué antigüedad tiene?</p>
           <StepCard columns={2} options={ANTIGUEDAD_OPTIONS} selected={antiguedad} onSelect={handleAntiguedad} />
         </div>
       </div>

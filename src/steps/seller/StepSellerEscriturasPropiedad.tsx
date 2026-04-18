@@ -33,11 +33,11 @@ export function StepSellerEscriturasPropiedad() {
     <StepLayout title="Escrituras y propietarios" onNext={showNext ? nextStep : undefined} hideNext={!showNext}>
       <div className="flex flex-col gap-6">
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿Tienes las escrituras?</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">¿Tienes las escrituras?</p>
           <StepCard columns={2} options={ESCRITURAS_OPTIONS} selected={tieneEscrituras} onSelect={handleEscrituras} />
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿Cuántos propietarios tiene la casa?</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">¿Cuántos propietarios tiene la casa?</p>
           <StepCard columns={2} options={DUENOS_OPTIONS} selected={numeroDuenos} onSelect={handleDuenos} />
         </div>
       </div>

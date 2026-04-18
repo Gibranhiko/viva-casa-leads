@@ -33,11 +33,11 @@ export function StepSellerPredialEstadoCivil() {
     <StepLayout title="Predial y estado civil" onNext={showNext ? nextStep : undefined} hideNext={!showNext}>
       <div className="flex flex-col gap-6">
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿El predial está al corriente?</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">¿El predial está al corriente?</p>
           <StepCard columns={2} options={PREDIAL_OPTIONS} selected={predialAlCorriente} onSelect={handlePredial} />
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">¿Cuál es tu estado civil?</p>
+          <p className="text-sm font-semibold text-orange-500 mb-2">¿Cuál es tu estado civil?</p>
           <StepCard columns={2} options={ESTADO_CIVIL_OPTIONS} selected={estadoCivil} onSelect={handleEstadoCivil} />
         </div>
       </div>

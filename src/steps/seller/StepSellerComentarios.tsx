@@ -1,6 +1,8 @@
 import { useSellerFormStore } from '@/store/useSellerFormStore'
 import { StepLayout } from '@/components/form/StepLayout'
 import { submitSellerLead } from '@/lib/firestore'
+import { uploadSellerPhoto } from '@/lib/storage'
+import { sellerPhotoCache } from '@/lib/sellerPhotoCache'
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router'
 
@@ -28,7 +30,20 @@ export function StepSellerComentarios() {
     setLoading(true)
     setError('')
     try {
-      await submitSellerLead(store)
+      // Upload photos now (deferred from StepSellerFotos)
+      const pendingFiles = sellerPhotoCache.get()
+      if (pendingFiles.length > 0) {
+        const paths = await Promise.all(
+          pendingFiles.map((file, i) => uploadSellerPhoto(file, store.sellerId, i + 1))
+        )
+        setField('fotoPaths', paths)
+        // Need updated store snapshot — pass paths directly to submit
+        await submitSellerLead({ ...store, fotoPaths: paths })
+      } else {
+        await submitSellerLead(store)
+      }
+
+      sellerPhotoCache.clear()
       localStorage.setItem(SPAM_KEY, String(Date.now()))
       reset()
       navigate('/vender/confirmation')
@@ -39,12 +54,14 @@ export function StepSellerComentarios() {
     }
   }
 
+  const label = loading ? 'Enviando...' : 'Enviar mi información'
+
   return (
     <StepLayout
       title="¿Algo más que quieras decirnos?"
       subtitle="Opcional"
       onNext={handleSubmit}
-      nextLabel={loading ? 'Enviando...' : 'Enviar mi información'}
+      nextLabel={label}
       nextDisabled={loading}
     >
       <input
