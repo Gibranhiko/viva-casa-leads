@@ -14,6 +14,7 @@ service cloud.firestore {
                    && request.resource.data.whatsapp is string
                    && request.resource.data.whatsapp.matches('[0-9]{10}')
                    && (!('comentarios' in request.resource.data)
+                       || request.resource.data.comentarios == null
                        || request.resource.data.comentarios.size() < 500)
                    && (!('infonavit' in request.resource.data)
                        || request.resource.data.infonavit is map);
@@ -29,6 +30,7 @@ service cloud.firestore {
                    && request.resource.data.whatsapp is string
                    && request.resource.data.whatsapp.matches('[0-9]{10}')
                    && (!('comentarios' in request.resource.data)
+                       || request.resource.data.comentarios == null
                        || request.resource.data.comentarios.size() < 500)
                    && (!('fotoPaths' in request.resource.data)
                        || request.resource.data.fotoPaths.size() <= 5);

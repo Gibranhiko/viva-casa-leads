@@ -136,7 +136,8 @@ export function calcularRedFlags(data: SellerFormData): RedFlag[] {
     data.gasEstado   === 'adeudo' ||
     data.aguaEstado  === 'inactivo'  // agua cortada = probable adeudo SADM/SAPASA
   )                                                    flags.push('servicios_con_adeudo')
-  if (data.predialAlCorriente !== 'si')                flags.push('predial_insoluto')
+  if (data.predialAlCorriente === 'no' || data.predialAlCorriente === 'no_se')
+                                                       flags.push('predial_insoluto')
 
   if (data.estadoCivil === 'divorciado')               flags.push('estado_civil_divorciado')
 

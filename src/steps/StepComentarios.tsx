@@ -34,8 +34,15 @@ export function StepComentarios() {
       localStorage.setItem(SPAM_KEY, String(Date.now()))
       reset()
       navigate('/confirmation')
-    } catch {
-      setError('Ocurrió un error. Por favor intenta de nuevo.')
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code
+      if (code === 'permission-denied') {
+        setError('Error de permisos. Verifica tu conexión e intenta de nuevo.')
+      } else if (code === 'unavailable' || code === 'deadline-exceeded') {
+        setError('Sin conexión a internet. Conéctate e intenta de nuevo.')
+      } else {
+        setError('Ocurrió un error al enviar. Por favor intenta de nuevo.')
+      }
     } finally {
       setLoading(false)
     }

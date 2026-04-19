@@ -38,7 +38,7 @@ export function StepSituacionLaboral() {
         {showEmpresa && (
           <div>
             <label htmlFor="empresa" className="block text-sm font-medium text-gray-700 mb-1">
-              ¿En qué empresa o giro?
+              ¿En qué empresa o giro? <span className="text-gray-400 font-normal">(opcional)</span>
             </label>
             <input
               id="empresa"

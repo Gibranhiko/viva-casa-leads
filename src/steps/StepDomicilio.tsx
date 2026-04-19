@@ -8,7 +8,7 @@ export function StepDomicilio() {
   const [error, setError] = useState('')
 
   const handleNext = () => {
-    if (!domicilioMunicipio || !domicilioFraccionamiento.trim() || !domicilioCalle.trim() || !domicilioCP.trim()) {
+    if (!domicilioMunicipio || !domicilioFraccionamiento.trim() || !domicilioCalle.trim() || domicilioCP.length !== 5) {
       setError('Por favor completa todos los campos')
       return
     }
