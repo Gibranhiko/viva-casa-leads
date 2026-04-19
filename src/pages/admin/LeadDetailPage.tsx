@@ -76,7 +76,7 @@ type EditState = {
   domMunicipio: string; domFracc: string; domCalle: string; domCP: string
   situacionLaboral: string; empresa: string; ingresoMensual: string
   nss: string; precalificacion: string
-  bancoPreferencia: string; tieneEnganche: string
+  bancoPreferencia: string; montoCredito: string; tieneEnganche: string
   presupuesto: string
   usoInmueble: string; zonasInteres: string; tipoInmueble: string; caracteristicas: string; comentarios: string
 }
@@ -87,7 +87,7 @@ const EMPTY_EDIT: EditState = {
   domMunicipio: '', domFracc: '', domCalle: '', domCP: '',
   situacionLaboral: '', empresa: '', ingresoMensual: '',
   nss: '', precalificacion: '',
-  bancoPreferencia: '', tieneEnganche: '',
+  bancoPreferencia: '', montoCredito: '', tieneEnganche: '',
   presupuesto: '',
   usoInmueble: '', zonasInteres: '', tipoInmueble: '', caracteristicas: '', comentarios: '',
 }
@@ -153,6 +153,7 @@ export function LeadDetailPage() {
       nss: inf.nss ?? '',
       precalificacion: inf.precalificacion ?? '',
       bancoPreferencia: ban.bancoPreferencia ?? '',
+      montoCredito: ban.montoCredito ?? '',
       tieneEnganche: ban.tieneEnganche ?? '',
       presupuesto: pro.presupuesto ?? '',
       usoInmueble: (lead.usoInmueble as string) ?? '',
@@ -197,6 +198,7 @@ export function LeadDetailPage() {
       updates['infonavit.precalificacion'] = edit.precalificacion || null
     } else if (tipoCredito === 'banco') {
       updates['banco.bancoPreferencia'] = edit.bancoPreferencia || null
+      updates['banco.montoCredito'] = edit.montoCredito || null
       updates['banco.tieneEnganche'] = edit.tieneEnganche || null
     } else if (tipoCredito === 'recursos_propios') {
       updates['recursosPropios.presupuesto'] = edit.presupuesto || null
@@ -386,6 +388,13 @@ export function LeadDetailPage() {
             editing ? (
               <>
                 <EF label="Banco preferencia" value={edit.bancoPreferencia} onChange={set('bancoPreferencia')} />
+                <ES label="Monto del crédito" value={edit.montoCredito} onChange={set('montoCredito')} options={[
+                  { value: 'menos_500k', label: 'Menos de $500,000' },
+                  { value: '500k_1m', label: '$500,000 – $1,000,000' },
+                  { value: '1m_2m', label: '$1,000,000 – $2,000,000' },
+                  { value: '2m_4m', label: '$2,000,000 – $4,000,000' },
+                  { value: 'mas_4m', label: 'Más de $4,000,000' },
+                ]} />
                 <ES label="Tiene enganche" value={edit.tieneEnganche} onChange={set('tieneEnganche')} options={[
                   { value: 'si', label: 'Sí' },
                   { value: 'no', label: 'No' },
@@ -394,6 +403,7 @@ export function LeadDetailPage() {
             ) : (
               <>
                 <Field label="Banco preferencia" value={banco.bancoPreferencia as string} />
+                <Field label="Monto del crédito" value={banco.montoCredito as string} />
                 <Field label="Enganche" value={banco.tieneEnganche as string} />
               </>
             )

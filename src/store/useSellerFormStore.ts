@@ -6,21 +6,10 @@ import type { RedFlag } from '@/types/sellerLead'
 export type SellerStepId =
   | 'seller_contacto'
   | 'seller_direccion'
-  | 'seller_tipo_propiedad'
-  | 'seller_recamaras_banos'
-  | 'seller_m2_antiguedad'
   | 'seller_condicion'
   | 'seller_fotos'
-  | 'seller_ocupacion'
-  | 'seller_servicios'
-  | 'seller_predial_estado_civil'
-  | 'seller_escrituras_propietarios'
-  | 'seller_duenos_disponibles'
-  | 'seller_credito'
-  | 'seller_cesion_infonavit'
-  | 'seller_cancelacion_infonavit'
+  | 'seller_credito_urgencia'
   | 'seller_precio'
-  | 'seller_urgencia'
   | 'seller_comentarios'
 
 interface SellerFormData {
@@ -30,7 +19,6 @@ interface SellerFormData {
   nombre: string
   whatsapp: string
   email: string | null
-  edad: number | null
 
   // Propiedad
   municipio: string
@@ -89,36 +77,16 @@ export interface SellerFormStore extends SellerFormData {
   reset: () => void
 }
 
-function buildSellerSteps(data: SellerFormData): SellerStepId[] {
-  const steps: SellerStepId[] = [
+function buildSellerSteps(_data: SellerFormData): SellerStepId[] {
+  return [
     'seller_contacto',
     'seller_direccion',
-    'seller_tipo_propiedad',
-    'seller_recamaras_banos',
-    'seller_m2_antiguedad',
     'seller_condicion',
     'seller_fotos',
-    'seller_ocupacion',
-    'seller_servicios',
-    'seller_predial_estado_civil',
-    'seller_escrituras_propietarios',
+    'seller_credito_urgencia',
+    'seller_precio',
+    'seller_comentarios',
   ]
-
-  if (data.numeroDuenos === 'pareja' || data.numeroDuenos === 'varios') {
-    steps.push('seller_duenos_disponibles')
-  }
-
-  steps.push('seller_credito')
-
-  if (data.situacionCredito === 'infonavit_activo') {
-    steps.push('seller_cesion_infonavit')
-  } else if (data.situacionCredito === 'infonavit_pagado') {
-    steps.push('seller_cancelacion_infonavit')
-  }
-
-  steps.push('seller_precio', 'seller_urgencia', 'seller_comentarios')
-
-  return steps
 }
 
 export function calcularRedFlags(data: SellerFormData): RedFlag[] {
@@ -176,7 +144,7 @@ function getInitialState(): SellerFormData {
   }
   return {
     sellerId: generateSellerId(),
-    nombre: '', whatsapp: '', email: null, edad: null,
+    nombre: '', whatsapp: '', email: null,
     municipio: '', fraccionamiento: '', calle: '', cp: '',
     tipoPropiedad: null,
     recamaras: null, banos: null, m2Construccion: null, antiguedad: null,

@@ -55,6 +55,7 @@ export async function submitLead(store: FormStore) {
   } else if (store.tipoCredito === 'banco') {
     extra.banco = {
       bancoPreferencia: store.bancoPreferencia,
+      montoCredito: store.montoCredito,
       tieneEnganche: store.tieneEnganche,
     }
   } else if (store.tipoCredito === 'recursos_propios') {
@@ -85,7 +86,6 @@ export async function submitSellerLead(store: SellerFormStore) {
     nombre: store.nombre.trim(),
     whatsapp: store.whatsapp,
     email: store.email,
-    edad: store.edad,
 
     municipio: store.municipio,
     fraccionamiento: store.fraccionamiento,
@@ -153,10 +153,29 @@ export interface SellerLeadEditable {
   fraccionamiento: string
   calle: string
   cp: string
+  tipoPropiedad: string | null
+  recamaras: string | null
+  banos: string | null
+  m2Construccion: string | null
+  antiguedad: string | null
+  ocupacion: string | null
+  luzEstado: string | null
+  aguaEstado: string | null
+  gasEstado: string | null
+  predialAlCorriente: string | null
+  cuotasCondominio: string | null
+  estadoCivil: string | null
+  tieneEscrituras: string | null
+  numeroDuenos: string | null
+  duenosDisponibles: string | null
+  situacionCredito: string | null
+  cesionInfonvitInteres: boolean | null
+  cancelacionInfonvitRegistrada: string | null
   precioPedido: number | null
   urgencia: string | null
   comentarios: string | null
   fotoPaths: string[]
+  redFlags: string[]
 }
 
 export async function updateSellerLead(id: string, data: SellerLeadEditable) {

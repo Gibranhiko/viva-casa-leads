@@ -6,41 +6,19 @@ import type { SellerStepId } from '@/store/useSellerFormStore'
 
 import { StepSellerContacto } from '@/steps/seller/StepSellerContacto'
 import { StepSellerDireccion } from '@/steps/seller/StepSellerDireccion'
-import { StepSellerTipoPropiedad } from '@/steps/seller/StepSellerTipoPropiedad'
-import { StepSellerRecamarasBanos } from '@/steps/seller/StepSellerRecamarasBanos'
-import { StepSellerM2Antiguedad } from '@/steps/seller/StepSellerM2Antiguedad'
 import { StepSellerCondicion } from '@/steps/seller/StepSellerCondicion'
 import { StepSellerFotos } from '@/steps/seller/StepSellerFotos'
-import { StepSellerOcupacion } from '@/steps/seller/StepSellerOcupacion'
-import { StepSellerServicios } from '@/steps/seller/StepSellerServicios'
-import { StepSellerPredialEstadoCivil } from '@/steps/seller/StepSellerPredialEstadoCivil'
-import { StepSellerEscriturasPropiedad } from '@/steps/seller/StepSellerEscriturasPropiedad'
-import { StepSellerDuenosDisponibles } from '@/steps/seller/StepSellerDuenosDisponibles'
-import { StepSellerCredito } from '@/steps/seller/StepSellerCredito'
-import { StepSellerCesionInfonavit } from '@/steps/seller/StepSellerCesionInfonavit'
-import { StepSellerCancelacionInfonavit } from '@/steps/seller/StepSellerCancelacionInfonavit'
+import { StepSellerCreditoUrgencia } from '@/steps/seller/StepSellerCreditoUrgencia'
 import { StepSellerPrecio } from '@/steps/seller/StepSellerPrecio'
-import { StepSellerUrgencia } from '@/steps/seller/StepSellerUrgencia'
 import { StepSellerComentarios } from '@/steps/seller/StepSellerComentarios'
 
 const STEP_COMPONENTS: Record<SellerStepId, React.ComponentType> = {
   seller_contacto: StepSellerContacto,
   seller_direccion: StepSellerDireccion,
-  seller_tipo_propiedad: StepSellerTipoPropiedad,
-  seller_recamaras_banos: StepSellerRecamarasBanos,
-  seller_m2_antiguedad: StepSellerM2Antiguedad,
   seller_condicion: StepSellerCondicion,
   seller_fotos: StepSellerFotos,
-  seller_ocupacion: StepSellerOcupacion,
-  seller_servicios: StepSellerServicios,
-  seller_predial_estado_civil: StepSellerPredialEstadoCivil,
-  seller_escrituras_propietarios: StepSellerEscriturasPropiedad,
-  seller_duenos_disponibles: StepSellerDuenosDisponibles,
-  seller_credito: StepSellerCredito,
-  seller_cesion_infonavit: StepSellerCesionInfonavit,
-  seller_cancelacion_infonavit: StepSellerCancelacionInfonavit,
+  seller_credito_urgencia: StepSellerCreditoUrgencia,
   seller_precio: StepSellerPrecio,
-  seller_urgencia: StepSellerUrgencia,
   seller_comentarios: StepSellerComentarios,
 }
 
@@ -51,6 +29,8 @@ export function SellerFormShell() {
   const steps = getSteps()
   const stepId = currentStepId()
   const StepComponent = STEP_COMPONENTS[stepId]
+  const stepNumber = currentStepIndex + 1
+  const stepTotal = steps.length
 
   const handleBack = () => {
     if (currentStepIndex === 0) {
@@ -73,8 +53,11 @@ export function SellerFormShell() {
           </svg>
         </button>
         <div className="flex-1">
-          <ProgressBar current={currentStepIndex} total={steps.length - 1} />
+          <ProgressBar current={stepNumber} total={stepTotal} />
         </div>
+        <span className="text-xs text-gray-400 tabular-nums whitespace-nowrap">
+          {stepNumber} de {stepTotal}
+        </span>
       </div>
 
       <div className="flex-1 flex flex-col">

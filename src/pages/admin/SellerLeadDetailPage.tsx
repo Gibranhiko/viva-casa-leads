@@ -6,6 +6,7 @@ import { getImageUrl, uploadSellerPhoto, deleteStorageFile } from '@/lib/storage
 import { updateSellerLeadStatus, updateSellerLead, deleteSellerLead } from '@/lib/firestore'
 import type { SellerLeadEditable } from '@/lib/firestore'
 import type { RedFlag } from '@/types/sellerLead'
+import { calcularRedFlags } from '@/store/useSellerFormStore'
 import { MUNICIPIOS_MTY } from '@/lib/municipios'
 import { ConfirmDeleteModal } from '@/components/admin/ConfirmDeleteModal'
 import { MultiPhotoPicker } from '@/components/form/MultiPhotoPicker'
@@ -103,6 +104,36 @@ function EditField({
   )
 }
 
+function EditSelect({
+  label,
+  value,
+  onChange,
+  options,
+  nullable = true,
+}: {
+  label: string
+  value: string | null
+  onChange: (v: string | null) => void
+  options: { value: string; label: string }[]
+  nullable?: boolean
+}) {
+  return (
+    <div>
+      <p className="text-xs text-gray-400 mb-1">{label}</p>
+      <select
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value || null)}
+        className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-orange-400"
+      >
+        {nullable && <option value="">Sin especificar</option>}
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 interface SellerDetail {
   id: string
   nombre: string
@@ -160,10 +191,29 @@ export function SellerLeadDetailPage() {
     fraccionamiento: '',
     calle: '',
     cp: '',
+    tipoPropiedad: null,
+    recamaras: null,
+    banos: null,
+    m2Construccion: null,
+    antiguedad: null,
+    ocupacion: null,
+    luzEstado: null,
+    aguaEstado: null,
+    gasEstado: null,
+    predialAlCorriente: null,
+    cuotasCondominio: null,
+    estadoCivil: null,
+    tieneEscrituras: null,
+    numeroDuenos: null,
+    duenosDisponibles: null,
+    situacionCredito: null,
+    cesionInfonvitInteres: null,
+    cancelacionInfonvitRegistrada: null,
     precioPedido: null,
     urgencia: null,
     comentarios: null,
     fotoPaths: [],
+    redFlags: [],
   })
   // Fotos en edición
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
@@ -224,10 +274,29 @@ export function SellerLeadDetailPage() {
       fraccionamiento: lead.fraccionamiento ?? '',
       calle: lead.calle ?? '',
       cp: lead.cp ?? '',
+      tipoPropiedad: lead.tipoPropiedad,
+      recamaras: lead.recamaras,
+      banos: lead.banos,
+      m2Construccion: lead.m2Construccion,
+      antiguedad: lead.antiguedad,
+      ocupacion: lead.ocupacion,
+      luzEstado: lead.luzEstado,
+      aguaEstado: lead.aguaEstado,
+      gasEstado: lead.gasEstado,
+      predialAlCorriente: lead.predialAlCorriente,
+      cuotasCondominio: lead.cuotasCondominio,
+      estadoCivil: lead.estadoCivil,
+      tieneEscrituras: lead.tieneEscrituras,
+      numeroDuenos: lead.numeroDuenos,
+      duenosDisponibles: lead.duenosDisponibles,
+      situacionCredito: lead.situacionCredito,
+      cesionInfonvitInteres: lead.cesionInfonvitInteres,
+      cancelacionInfonvitRegistrada: lead.cancelacionInfonvitRegistrada,
       precioPedido: lead.precioPedido,
       urgencia: lead.urgencia,
       comentarios: lead.comentarios,
       fotoPaths: lead.fotoPaths,
+      redFlags: lead.redFlags,
     })
     setPendingFiles([])
     setEditing(true)
@@ -258,9 +327,11 @@ export function SellerLeadDetailPage() {
         setUploadingPhotos(false)
       }
 
-      const dataToSave = { ...editData, fotoPaths: newFotoPaths }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const newRedFlags = calcularRedFlags({ ...lead, ...editData } as any)
+      const dataToSave = { ...editData, fotoPaths: newFotoPaths, redFlags: newRedFlags }
       await updateSellerLead(id, dataToSave)
-      setLead({ ...lead, ...dataToSave })
+      setLead({ ...lead, ...dataToSave, redFlags: newRedFlags })
     } finally {
       setSaving(false)
       setEditing(false)
@@ -421,6 +492,42 @@ export function SellerLeadDetailPage() {
               <EditField label="Fraccionamiento / Colonia" value={editData.fraccionamiento} onChange={(v) => setEditData({ ...editData, fraccionamiento: v })} />
               <EditField label="Calle" value={editData.calle} onChange={(v) => setEditData({ ...editData, calle: v })} />
               <EditField label="Código postal" value={editData.cp} onChange={(v) => setEditData({ ...editData, cp: v })} />
+              <EditSelect label="Tipo de propiedad" value={editData.tipoPropiedad} onChange={(v) => setEditData({ ...editData, tipoPropiedad: v })}
+                options={[
+                  { value: 'fracc_privado', label: 'Fracc. privado' },
+                  { value: 'fracc_abierto', label: 'Fracc. abierto' },
+                  { value: 'departamento', label: 'Departamento' },
+                  { value: 'terreno', label: 'Terreno' },
+                ]}
+              />
+              <EditSelect label="Recámaras" value={editData.recamaras} onChange={(v) => setEditData({ ...editData, recamaras: v })}
+                options={[
+                  { value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4+', label: '4+' },
+                ]}
+              />
+              <EditSelect label="Baños" value={editData.banos} onChange={(v) => setEditData({ ...editData, banos: v })}
+                options={[
+                  { value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3+', label: '3+' },
+                ]}
+              />
+              <EditSelect label="M² de construcción" value={editData.m2Construccion} onChange={(v) => setEditData({ ...editData, m2Construccion: v })}
+                options={[
+                  { value: 'menos_60', label: 'Menos de 60 m²' },
+                  { value: '60_90', label: '60–90 m²' },
+                  { value: '90_120', label: '90–120 m²' },
+                  { value: 'mas_120', label: 'Más de 120 m²' },
+                  { value: 'no_se', label: 'No sé' },
+                ]}
+              />
+              <EditSelect label="Antigüedad" value={editData.antiguedad} onChange={(v) => setEditData({ ...editData, antiguedad: v })}
+                options={[
+                  { value: 'menos_5', label: 'Menos de 5 años' },
+                  { value: '5_15', label: '5–15 años' },
+                  { value: '15_30', label: '15–30 años' },
+                  { value: 'mas_30', label: 'Más de 30 años' },
+                  { value: 'no_se', label: 'No sé' },
+                ]}
+              />
             </>
           ) : (
             <>
@@ -468,36 +575,146 @@ export function SellerLeadDetailPage() {
           </Section>
         )}
 
-        {/* Situación — solo en vista */}
-        {!editing && (
-          <Section title="Situación de la propiedad">
-            <Field label="Ocupación" value={lead.ocupacion} />
-            <Field label="Luz (CFE)" value={lead.luzEstado} />
-            <Field label="Agua" value={lead.aguaEstado} />
-            <Field label="Gas" value={lead.gasEstado} />
-            <Field label="Predial" value={lead.predialAlCorriente} />
-            <Field label="Cuotas de condominio" value={lead.cuotasCondominio} />
-          </Section>
-        )}
+        {/* Situación */}
+        <Section title="Situación de la propiedad">
+          {editing ? (
+            <>
+              <EditSelect label="Ocupación" value={editData.ocupacion} onChange={(v) => setEditData({ ...editData, ocupacion: v })}
+                options={[
+                  { value: 'habitada', label: 'Habitada (por el dueño)' },
+                  { value: 'rentada', label: 'Rentada' },
+                  { value: 'desocupada', label: 'Desocupada' },
+                  { value: 'invadida', label: 'Invadida' },
+                ]}
+              />
+              <EditSelect label="Luz (CFE)" value={editData.luzEstado} onChange={(v) => setEditData({ ...editData, luzEstado: v })}
+                options={[
+                  { value: 'activo', label: 'Activo' },
+                  { value: 'adeudo', label: 'Con adeudo' },
+                  { value: 'inactivo', label: 'Inactivo / Cortado' },
+                ]}
+              />
+              <EditSelect label="Agua" value={editData.aguaEstado} onChange={(v) => setEditData({ ...editData, aguaEstado: v })}
+                options={[
+                  { value: 'activo', label: 'Activo' },
+                  { value: 'adeudo', label: 'Con adeudo' },
+                  { value: 'inactivo', label: 'Inactivo / Cortado' },
+                ]}
+              />
+              <EditSelect label="Gas" value={editData.gasEstado} onChange={(v) => setEditData({ ...editData, gasEstado: v })}
+                options={[
+                  { value: 'activo', label: 'Activo' },
+                  { value: 'adeudo', label: 'Con adeudo' },
+                  { value: 'inactivo', label: 'Inactivo / Cortado' },
+                ]}
+              />
+              <EditSelect label="Predial" value={editData.predialAlCorriente} onChange={(v) => setEditData({ ...editData, predialAlCorriente: v })}
+                options={[
+                  { value: 'si', label: 'Al corriente' },
+                  { value: 'no', label: 'Con adeudo' },
+                  { value: 'no_se', label: 'No sé' },
+                ]}
+              />
+              <EditSelect label="Cuotas de condominio" value={editData.cuotasCondominio} onChange={(v) => setEditData({ ...editData, cuotasCondominio: v })}
+                options={[
+                  { value: 'al_corriente', label: 'Al corriente' },
+                  { value: 'con_adeudo', label: 'Con adeudo' },
+                  { value: 'no_aplica', label: 'No aplica' },
+                ]}
+              />
+            </>
+          ) : (
+            <>
+              <Field label="Ocupación" value={lead.ocupacion} />
+              <Field label="Luz (CFE)" value={lead.luzEstado} />
+              <Field label="Agua" value={lead.aguaEstado} />
+              <Field label="Gas" value={lead.gasEstado} />
+              <Field label="Predial" value={lead.predialAlCorriente} />
+              <Field label="Cuotas de condominio" value={lead.cuotasCondominio} />
+            </>
+          )}
+        </Section>
 
-        {/* Propietario — solo en vista */}
-        {!editing && (
-          <Section title="Propietario">
-            <Field label="Estado civil" value={lead.estadoCivil} />
-            <Field label="Escrituras" value={lead.tieneEscrituras} />
-            <Field label="Número de dueños" value={lead.numeroDuenos} />
-            <Field label="Disponibilidad de dueños" value={lead.duenosDisponibles} />
-          </Section>
-        )}
+        {/* Propietario */}
+        <Section title="Propietario">
+          {editing ? (
+            <>
+              <EditSelect label="Estado civil" value={editData.estadoCivil} onChange={(v) => setEditData({ ...editData, estadoCivil: v })}
+                options={[
+                  { value: 'soltero', label: 'Soltero/a' },
+                  { value: 'casado', label: 'Casado/a' },
+                  { value: 'divorciado', label: 'Divorciado/a' },
+                  { value: 'viudo', label: 'Viudo/a' },
+                ]}
+              />
+              <EditSelect label="Escrituras" value={editData.tieneEscrituras} onChange={(v) => setEditData({ ...editData, tieneEscrituras: v })}
+                options={[
+                  { value: 'propias', label: 'Sí, a mi nombre' },
+                  { value: 'otro_nombre', label: 'Sí, en otro nombre' },
+                  { value: 'no_tiene', label: 'No tiene escrituras' },
+                ]}
+              />
+              <EditSelect label="Número de dueños" value={editData.numeroDuenos} onChange={(v) => setEditData({ ...editData, numeroDuenos: v })}
+                options={[
+                  { value: 'solo_yo', label: 'Solo yo' },
+                  { value: 'pareja', label: 'Mi pareja y yo' },
+                  { value: 'varios', label: 'Varios propietarios' },
+                  { value: 'no_se', label: 'No sé' },
+                ]}
+              />
+              <EditSelect label="Disponibilidad de dueños" value={editData.duenosDisponibles} onChange={(v) => setEditData({ ...editData, duenosDisponibles: v })}
+                options={[
+                  { value: 'todos', label: 'Todos disponibles' },
+                  { value: 'alguno_no', label: 'Alguno no puede' },
+                  { value: 'fallecido', label: 'Uno ha fallecido' },
+                ]}
+              />
+            </>
+          ) : (
+            <>
+              <Field label="Estado civil" value={lead.estadoCivil} />
+              <Field label="Escrituras" value={lead.tieneEscrituras} />
+              <Field label="Número de dueños" value={lead.numeroDuenos} />
+              <Field label="Disponibilidad de dueños" value={lead.duenosDisponibles} />
+            </>
+          )}
+        </Section>
 
-        {/* Crédito — solo en vista */}
-        {!editing && (
-          <Section title="Crédito / Hipoteca">
-            <Field label="Situación de crédito" value={lead.situacionCredito} />
-            <Field label="Interés en cesión INFONAVIT" value={lead.cesionInfonvitInteres ? 'Sí' : lead.cesionInfonvitInteres === false ? 'No' : null} />
-            <Field label="Cancelación INFONAVIT registrada" value={lead.cancelacionInfonvitRegistrada} />
-          </Section>
-        )}
+        {/* Crédito */}
+        <Section title="Crédito / Hipoteca">
+          {editing ? (
+            <>
+              <EditSelect label="Situación de crédito" value={editData.situacionCredito} onChange={(v) => setEditData({ ...editData, situacionCredito: v })}
+                options={[
+                  { value: 'libre', label: 'Libre de crédito' },
+                  { value: 'infonavit_activo', label: 'INFONAVIT activo' },
+                  { value: 'banco', label: 'Hipoteca bancaria' },
+                  { value: 'infonavit_pagado', label: 'INFONAVIT pagado' },
+                  { value: 'no_se', label: 'No sé' },
+                ]}
+              />
+              <EditSelect label="Interés en cesión INFONAVIT" value={editData.cesionInfonvitInteres === true ? 'si' : editData.cesionInfonvitInteres === false ? 'no' : null}
+                onChange={(v) => setEditData({ ...editData, cesionInfonvitInteres: v === 'si' ? true : v === 'no' ? false : null })}
+                options={[
+                  { value: 'si', label: 'Sí' },
+                  { value: 'no', label: 'No' },
+                ]}
+              />
+              <EditSelect label="Cancelación INFONAVIT registrada" value={editData.cancelacionInfonvitRegistrada} onChange={(v) => setEditData({ ...editData, cancelacionInfonvitRegistrada: v })}
+                options={[
+                  { value: 'si', label: 'Sí' },
+                  { value: 'no', label: 'No' },
+                ]}
+              />
+            </>
+          ) : (
+            <>
+              <Field label="Situación de crédito" value={lead.situacionCredito} />
+              <Field label="Interés en cesión INFONAVIT" value={lead.cesionInfonvitInteres ? 'Sí' : lead.cesionInfonvitInteres === false ? 'No' : null} />
+              <Field label="Cancelación INFONAVIT registrada" value={lead.cancelacionInfonvitRegistrada} />
+            </>
+          )}
+        </Section>
 
         {/* Expectativas */}
         <Section title="Expectativas de venta">

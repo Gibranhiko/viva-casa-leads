@@ -7,15 +7,13 @@ import type {
 } from '@/types/lead'
 
 export type StepId =
-  | 'welcome'
   | 'contacto'
-  | 'perfil' | 'domicilio'
-  | 'situacionLaboral' | 'ingreso'
   | 'tipoCredito'
   | 'nss' | 'precalificacion'
-  | 'banco' | 'enganche'
+  | 'banco'
   | 'presupuesto'
-  | 'usoInmueble' | 'busqueda' | 'caracteristicas' | 'comentarios'
+  | 'zonas'
+  | 'comentarios'
 
 interface FormData {
   leadId: string
@@ -25,7 +23,7 @@ interface FormData {
   whatsapp: string
   email: string | null
 
-  // Perfil
+  // Perfil (no se captura en form, editable en admin)
   edad: number | null
   estadoCivil: EstadoCivil | null
   dependientes: Dependientes | null
@@ -34,7 +32,7 @@ interface FormData {
   domicilioCalle: string
   domicilioCP: string
 
-  // Laboral
+  // Laboral (no se captura en form, editable en admin)
   situacionLaboral: SituacionLaboral | null
   empresa: string | null
   ingresoMensual: string | null
@@ -51,12 +49,13 @@ interface FormData {
 
   // Banco
   bancoPreferencia: string | null
+  montoCredito: string | null
   tieneEnganche: TieneEnganche | null
 
   // Recursos propios
   presupuesto: string | null
 
-  // Preferencias
+  // Preferencias (tipoInmueble y caracteristicas — admin)
   usoInmueble: UsoInmueble | null
   zonasInteres: string[]
   tipoInmueble: TipoInmueble | null
@@ -78,24 +77,18 @@ const INFONAVIT_TYPES: TipoCredito[] = [
   'infonavit_tradicional', 'infonavit_total', 'cofinavit', 'unamos_creditos', 'segundo_credito'
 ]
 
-
 function buildSteps(data: FormData): StepId[] {
-  const steps: StepId[] = [
-    'welcome', 'contacto',
-    'perfil', 'domicilio',
-    'situacionLaboral',
-    'ingreso', 'tipoCredito',
-  ]
+  const steps: StepId[] = ['contacto', 'tipoCredito']
 
   if (data.tipoCredito && INFONAVIT_TYPES.includes(data.tipoCredito)) {
     steps.push('nss', 'precalificacion')
   } else if (data.tipoCredito === 'banco') {
-    steps.push('banco', 'enganche')
+    steps.push('banco')
   } else if (data.tipoCredito === 'recursos_propios') {
     steps.push('presupuesto')
   }
 
-  steps.push('usoInmueble', 'busqueda', 'caracteristicas', 'comentarios')
+  steps.push('zonas', 'comentarios')
 
   return steps
 }
@@ -121,14 +114,14 @@ function getInitialState(): FormData {
     situacionLaboral: null, empresa: null, ingresoMensual: null,
     tipoCredito: null, tipoCreditoDetalle: null,
     nss: null, nssImageUrl: null, precalificacion: null, participantes: null,
-    bancoPreferencia: null, tieneEnganche: null,
+    bancoPreferencia: null, montoCredito: null, tieneEnganche: null,
     presupuesto: null,
     usoInmueble: null, zonasInteres: [], tipoInmueble: null,
     caracteristicas: [], comentarios: null,
   }
 }
 
-function getInitialStep(_data: FormData): number {
+function getInitialStep(): number {
   try {
     const saved = sessionStorage.getItem(SESSION_KEY + '-step')
     if (saved) return parseInt(saved, 10)
@@ -142,7 +135,7 @@ const initialData = getInitialState()
 
 export const useFormStore = create<FormStore>((set, get) => ({
   ...initialData,
-  currentStepIndex: getInitialStep(initialData),
+  currentStepIndex: getInitialStep(),
 
   getSteps: () => buildSteps(get()),
 
@@ -155,7 +148,6 @@ export const useFormStore = create<FormStore>((set, get) => ({
   setField: (field, value) => {
     set((state) => {
       const next = { ...state, [field]: value }
-      // Persist to sessionStorage
       const { currentStepIndex, ...data } = next
       try {
         sessionStorage.setItem(SESSION_KEY, JSON.stringify(data))

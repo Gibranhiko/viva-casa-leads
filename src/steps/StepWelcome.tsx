@@ -1,11 +1,9 @@
 import { motion } from 'framer-motion'
-import { useFormStore } from '@/store/useFormStore'
 import { useNavigate } from 'react-router'
 import logo from '@/assets/viva-casa-logo.png'
 import { Home, Tag } from 'lucide-react'
 
 export function StepWelcome() {
-  const nextStep = useFormStore((s) => s.nextStep)
   const navigate = useNavigate()
 
   return (
@@ -39,7 +37,7 @@ export function StepWelcome() {
           className="w-full flex flex-col gap-3"
         >
           <button
-            onClick={nextStep}
+            onClick={() => navigate('/comprar')}
             className="w-full bg-white text-orange-600 font-bold text-lg py-4 rounded-2xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2"
           >
             <Home size={20} /> Quiero comprar casa

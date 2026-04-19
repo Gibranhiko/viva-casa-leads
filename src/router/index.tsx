@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
+import { StepWelcome } from '@/steps/StepWelcome'
 import { FormPage } from '@/pages/FormPage'
 import { ConfirmationPage } from '@/pages/ConfirmationPage'
 import { SellerFormPage } from '@/pages/SellerFormPage'
@@ -21,7 +22,8 @@ export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<FormPage />} />
+        <Route path="/" element={<StepWelcome />} />
+        <Route path="/comprar" element={<FormPage />} />
         <Route path="/confirmation" element={<ConfirmationPage />} />
         <Route path="/vender" element={<SellerFormPage />} />
         <Route path="/vender/confirmation" element={<SellerConfirmationPage />} />
